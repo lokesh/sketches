@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1 user-scalable=0">
+    <style> body {padding: 0; margin: 0;} </style>
+    <script src="./p5/p5.min.js"></script>
+    <script>
+
+const BACK_IN_TIME = 20;
+
+let hist = [];
+
+function setup() {
+  createCanvas(640, 480);
+  colorMode(HSB);
+}
+
+function mouseMoved() {
+  background(255);
+
+  if (hist.length >= BACK_IN_TIME) {
+    hist = hist.slice(1);
+  }
+
+  hist.push({
+    x: mouseX,
+    y: mouseY
+  });
+
+  for (let i = 0; i < hist.length - 1; i++) {
+    strokeWeight(10 + (i * 2));
+    stroke(i * 10, 100, 100);
+    line(hist[i].x, hist[i].y, hist[i + 1].x, hist[i + 1].y);
+  }
+}
+
+    </script>
+  </head>
+  <body>
+  </body>
+</html>

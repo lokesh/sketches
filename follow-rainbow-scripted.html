@@ -3,7 +3,7 @@
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1 user-scalable=0">
-    <style> body {padding: 0; margin: 0;} </style>
+    <style> body {padding: 0; margin: 0; overflow: hidden;} </style>
     <script src="./p5/p5.min.js"></script>
     <script>
 
@@ -26,9 +26,15 @@ let script = [{"x":208,"y":2},{"x":197,"y":5},{"x":189,"y":9},{"x":182,"y":12},{
 let totalFrames = script.length;
 let frame = 0;
 
+let canvas;
+
 function setup() {
-  createCanvas(640, 480);
+  canvas = createCanvas(windowWidth, windowHeight);
   colorMode(HSB);
+}
+
+function windowResized() {
+  resizeCanvas(windowWidth, windowHeight);
 }
 
 function draw() {

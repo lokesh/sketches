@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1 user-scalable=0">
+    <style> body {padding: 0; margin: 0; overflow: hidden;} </style>
+    <script src="./p5/p5.min.js"></script>
+    <script>
+
+/*
+
+
+
+ */
+class Player {
+  constructor() {
+    this.width = 20;
+    this.height = 20;
+
+    this.x = 100;
+    this.y = 100;
+
+    this.velX = 0;
+    this.velY = 0;
+
+    this.drag = 0.9;
+  }
+
+  update() {
+    this.velX *= this.drag;
+    this.velY *= this.drag;
+
+    this.x += this.velX;
+    this.y += this.velY;
+  }
+
+  up() {
+    this.velY -= 1;
+  }
+
+  down() {
+    this.velY += 1;
+  }
+
+  left() {
+    this.velX -= 1;
+  }
+
+  right() {
+    this.velX += 1;
+  }
+
+  draw() {
+    push();
+    fill(100);
+    rect(this.x, this.y, this.width, this.height);
+    pop();
+  }
+}
+
+const player = new Player();
+
+function setup() {
+  // frameRate(3);
+
+  createCanvas(windowWidth, windowHeight);
+  colorMode(HSB);
+}
+
+function windowResized() {
+  resizeCanvas(windowWidth, windowHeight);
+}
+
+function draw() {
+  handleKeyDown();
+  player.update();
+
+  background(25);
+  player.draw();
+}
+
+function handleKeyDown() {
+  if (keyIsDown(LEFT_ARROW) || keyIsDown(65)) {
+    player.left();
+  }
+
+  if (keyIsDown(RIGHT_ARROW) || keyIsDown(68)) {
+    player.right();
+  }
+
+  if (keyIsDown(UP_ARROW) || keyIsDown(87)) {
+    player.up();
+  }
+
+  if (keyIsDown(DOWN_ARROW) || keyIsDown(83)) {
+    player.down();
+  }
+
+}
+
+    </script>
+  </head>
+  <body>
+  </body>
+</html>

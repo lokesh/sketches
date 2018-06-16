@@ -7,45 +7,68 @@
     <script src="./p5/p5.min.js"></script>
     <script>
 
+const FLOOR_HEIGHT = 40;
+
 class Player {
   constructor() {
     // Options
-    this.speed = 0.5;
+    this.speed = 2;
+    this.drag = 0.8;
+    this.gravity = 0.4;
+    this.jumpForce = 10;
 
     // ----
 
     this.width = 20;
-    this.height = 20;
+    this.height = 40;
 
-    this.x = 100;
-    this.y = 100;
+    this.x = int(random(0, windowWidth - this.width));
+    this.y = int(random(0, windowHeight - this.height));
 
     this.velX = 0;
     this.velY = 0;
 
-    this.drag = 0.9;
+    this.leftLimit = 0;
+    this.rightLimit = windowWidth - this.width;
+    this.bottomLimit = int(windowHeight - this.height - FLOOR_HEIGHT);
+
+    this.isJumping = false;
   }
 
   update() {
     this.velX *= this.drag;
-    this.velY *= this.drag;
+    this.velY += this.gravity;
 
     this.x += this.velX;
     this.y += this.velY;
+
+    if (this.y > this.bottomLimit) {
+      this.y = this.bottomLimit;
+      this.isJumping = false;
+    }
+
+    if (this.x > this.rightLimit) {
+      this.x = this.rightLimit;
+    } else if (this.x < this.leftLimit) {
+      this.x = this.leftLimit;
+    }
   }
 
   up() {
-    this.velY -= this.speed;
+    if (!this.isJumping) {
+      this.isJumping = true;
+      this.velY = -this.jumpForce;
+    }
   }
 
   down() {
-    this.velY += this.speed;
+    // this.velY += this.speed;
   }
 
   left() {
-    // If moving right, transition to left slowly
+    // Skid. If moving right, transition to left slowly.
     if (this.velX > 0) {
-      this.velX -= (this.speed / 2);
+      this.velX -= (this.speed / 10);
     } else {
       this.velX -= this.speed;
     }
@@ -56,27 +79,49 @@ class Player {
     if (this.velX > 0) {
       this.velX += this.speed;
     } else {
-      // If moving left, transition to right slowly
-      this.velX += (this.speed / 2);
+      // Skid. If moving left, transition to right slowly
+      this.velX += (this.speed / 10);
     }
 
   }
 
   draw() {
     push();
-    fill(100);
+
+    if (this.isJumping) {
+      fill(100, 200 ,255);
+    } else {
+      fill(100);
+    }
+
+
     rect(this.x, this.y, this.width, this.height);
     pop();
   }
 }
 
-const player = new Player();
+
+class World {
+  constructor() {
+    this.height = FLOOR_HEIGHT;
+  }
+
+  draw() {
+    // Floor
+    push();
+    fill(50);
+    rect(0, windowHeight - this.height, windowWidth, this.height)
+    pop();
+  }
+}
 
 function setup() {
-  // frameRate(3);
-
   createCanvas(windowWidth, windowHeight);
   colorMode(HSB);
+  noStroke();
+
+  this.world = new World();
+  this.player = new Player();
 }
 
 function windowResized() {
@@ -84,30 +129,31 @@ function windowResized() {
 }
 
 function draw() {
+  // Handle user input
   handleKeyDown();
-  player.update();
 
+  // Update
+  this.player.update();
+
+  // Draw
   background(25);
-  player.draw();
+  this.player.draw();
+  this.world.draw();
 }
 
 function handleKeyDown() {
-  if (keyIsDown(LEFT_ARROW) || keyIsDown(65)) {
-    player.left();
+
+  if (keyIsDown(LEFT_ARROW) || keyIsDown(65)) { // 'A'
+    this.player.left();
   }
 
-  if (keyIsDown(RIGHT_ARROW) || keyIsDown(68)) {
-    player.right();
+  if (keyIsDown(RIGHT_ARROW) || keyIsDown(68)) { // 'D'
+    this.player.right();
   }
 
-  if (keyIsDown(UP_ARROW) || keyIsDown(87)) {
-    player.up();
+  if (keyIsDown(UP_ARROW) || keyIsDown(32)) { // Space
+    this.player.up();
   }
-
-  if (keyIsDown(DOWN_ARROW) || keyIsDown(83)) {
-    player.down();
-  }
-
 }
 
     </script>

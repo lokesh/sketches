@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, maximum-scale=1 user-scalable=0"
+    />
+    <style>
+      body {
+        padding: 0;
+        margin: 0;
+        overflow: hidden;
+      }
+    </style>
+    <script src="./p5/p5.min.js"></script>
+    <script>
+      // Options
+      const WIDTH = 640;
+      const HEIGHT = 640;
+      const ROWS = 64;
+      const COLS = ROWS * 2;
+
+      const COLORS = [
+        "black",
+        "navy" // orange
+      ];
+
+      const CIRCLE_COLORS = ["#fff", "gold"];
+
+      // --
+
+      const ROW_HEIGHT = HEIGHT / ROWS;
+      const COL_WIDTH = WIDTH / COLS;
+
+      function setup() {
+        createCanvas(WIDTH, HEIGHT);
+        noLoop();
+      }
+
+      function draw() {
+        background(220);
+        noStroke();
+
+        // 8 cols
+        // 4 rows
+        for (let i = 0; i < ROWS; i++) {
+          for (let j = 0; j < COLS; j++) {
+            // Bg color
+            let bg = random(COLORS);
+            fill(bg);
+
+            // Rect
+            rect(j * COL_WIDTH, i * ROW_HEIGHT, COL_WIDTH, ROW_HEIGHT);
+
+            // Color
+            let foreground = bg;
+            // while (
+            //   !foreground ||
+            //   (foreground !== "#fff" && foreground === bg)
+            // ) {
+            foreground = random(CIRCLE_COLORS);
+            // }
+            fill(foreground);
+
+            // Draw half circle, alternate direction per col
+
+            let size = random(0, ROW_HEIGHT);
+            if (j % 2) {
+              // arc on right
+              arc(
+                j * COL_WIDTH,
+                (i + 0.5) * ROW_HEIGHT,
+                size,
+                size,
+                PI * 1.5,
+                PI * 0.5
+              );
+            } else {
+              // arc on left
+
+              arc(
+                (j + 1) * COL_WIDTH,
+                (i + 0.5) * ROW_HEIGHT,
+                size,
+                size,
+                PI * 0.5,
+                PI * 1.5
+              );
+            }
+          }
+        }
+      }
+    </script>
+  </head>
+  <body></body>
+</html>

@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1 user-scalable=0">
+    <style> body {padding: 0; margin: 0; overflow: hidden;} </style>
+    <script src="./p5/p5.min.js"></script>
+    <script>
+
+function setup() {
+  noLoop();
+
+  createCanvas(640, 480);
+  background(40);
+}
+
+function draw() {
+  stroke(255);
+  strokeWeight(4);
+
+  drawSinWave();
+}
+
+function drawSinWave() {
+  const increment = TWO_PI / 50;
+
+  for (let i = 0; i < TWO_PI; i += increment) {
+    let xVal = map(i, 0, 1, 0, 50);
+    let yVal = map(sin(i), 0, 1, 0, 100);
+
+    xVal = xVal + 20;
+    yVal = 200 - yVal;
+
+    point(xVal, yVal);
+  }
+}
+
+    </script>
+  </head>
+  <body>
+  </body>
+</html>

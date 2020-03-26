@@ -18,8 +18,8 @@
       // Options
       const WIDTH = 640;
       const HEIGHT = 640;
-      const ROWS = 64;
-      const COLS = ROWS * 2;
+      const ROWS = 4;
+      const COLS = ROWS;
 
       const COLORS = [
         "black",
@@ -42,8 +42,6 @@
         background(220);
         noStroke();
 
-        // 8 cols
-        // 4 rows
         for (let i = 0; i < ROWS; i++) {
           for (let j = 0; j < COLS; j++) {
             // Bg color
@@ -54,40 +52,14 @@
             rect(j * COL_WIDTH, i * ROW_HEIGHT, COL_WIDTH, ROW_HEIGHT);
 
             // Color
-            let foreground = bg;
-            // while (
-            //   !foreground ||
-            //   (foreground !== "#fff" && foreground === bg)
-            // ) {
-            foreground = random(CIRCLE_COLORS);
-            // }
-            fill(foreground);
+            fill(random(CIRCLE_COLORS));
 
-            // Draw half circle, alternate direction per col
-
-            let size = random(0, ROW_HEIGHT);
-            if (j % 2) {
-              // arc on right
-              arc(
-                j * COL_WIDTH,
-                (i + 0.5) * ROW_HEIGHT,
-                size,
-                size,
-                PI * 1.5,
-                PI * 0.5
-              );
-            } else {
-              // arc on left
-
-              arc(
-                (j + 1) * COL_WIDTH,
-                (i + 0.5) * ROW_HEIGHT,
-                size,
-                size,
-                PI * 0.5,
-                PI * 1.5
-              );
-            }
+            let size = ROW_HEIGHT / 4;
+            ellipse(
+              j * COL_WIDTH + (COL_WIDTH / 2),
+              i * ROW_HEIGHT + (ROW_HEIGHT / 2),
+              size,
+            );
           }
         }
       }

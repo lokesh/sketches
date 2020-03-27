@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, maximum-scale=1 user-scalable=0"
+    />
+    <style>
+      body {
+        padding: 0;
+        margin: 0;
+        overflow: hidden;
+      }
+    </style>
+    <script src="./p5/p5.min.js"></script>
+    <script>
+      // Options
+      const WIDTH = 640;
+      const HEIGHT = 640;
+      
+      const LINES = 24;
+      const STROKE = 2;
+      const XSTEP = 2;
+      const WAVINESS = 0.002;// Smaller is smoother waves
+      const WAVE_HEIGHT = 1;
+
+      
+      const COLORS = [
+        // 'navy',
+        // 'white',
+        // 'gold',
+        // 'red',
+        "#4AA25B", // green
+        "#774493", // purple
+        "#F9DB4A", // yellow
+        "#D83188", // magenta
+        "#4CAFEC", // blue
+      ];
+
+      // navy, gold
+
+      function setup() {
+        createCanvas(WIDTH, HEIGHT);
+        noLoop();
+      }
+
+      let seed = 0;
+
+      function draw() {
+        background(0);
+        noStroke();
+
+        for (i = 0; i < LINES; i++) {
+          let color = fill(COLORS[i % COLORS.length]);
+
+          seed = seed + 1;
+          for (let x = 0; x < WIDTH; x = x + XSTEP) {
+            seed = seed + WAVINESS;    
+            let y = noise(seed) * (HEIGHT * WAVE_HEIGHT) - (HEIGHT * ((WAVE_HEIGHT - 1) / 2));
+            ellipse(y, x, STROKE);
+          }
+        }
+        
+      }
+    </script>
+  </head>
+  <body></body>
+</html>

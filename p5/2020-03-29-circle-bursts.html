@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, maximum-scale=1 user-scalable=0"
+    />
+    <style>
+      body {
+        padding: 0;
+        margin: 0;
+        overflow: hidden;
+      }
+    </style>
+    <script src="./p5/p5.min.js"></script>
+    <script>
+      const log = console.log.bind(console);
+      const $ = (q) => [...document.querySelectorAll(q)];
+
+      // Options
+      const WIDTH = window.innerWidth;
+      const HEIGHT = window.innerHeight;
+      
+      const LINES = 60;
+      const STROKE = 8;
+
+      const STEP = 3;
+      const CIRCLE_SIZE = 2;
+
+      const INNER_MIN = 12;
+      const OUTER_MIN = 12;
+      const OUTER_MAX = 4000;
+      
+      const COLORS = [
+        'blue',
+        'white',
+        'gold',
+        'red',
+        "#4AA25B", // green
+        "#774493", // purple
+        "#F9DB4A", // yellow
+        "#D83188", // magenta
+        "#4CAFEC", // blue
+      ];
+
+      function setup() {
+        createCanvas(WIDTH, HEIGHT);
+        noLoop();
+      }
+
+      let rotateStart = 0;
+
+      function draw() {
+        background(0);
+        fill(255)
+        noStroke();
+
+        rotateStart += (2 * PI) / 360;
+
+        push();
+        translate(WIDTH / 2, HEIGHT / 2)
+        rotate(rotateStart);
+        for (let i = 0; i < LINES; i++) {
+          // line(INNER_MIN, 0, OUTER_MAX , 0);
+          for (let j = INNER_MIN; j <= random(OUTER_MIN, OUTER_MAX); j += STEP) {
+            ellipse(INNER_MIN + j, 0, CIRCLE_SIZE)
+          }
+          rotate((2 * PI) / LINES);
+        }
+        pop()
+
+
+        
+      }
+    </script>
+  </head>
+  <body></body>
+</html>

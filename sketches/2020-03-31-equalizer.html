@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, maximum-scale=1 user-scalable=0"
+    />
+    <style>
+      body {
+        padding: 0;
+        margin: 0;
+        overflow: hidden;
+      }
+    </style>
+    <script src="/node_modules/p5/lib/p5.min.js"></script>
+    <script src="/node_modules/p5/lib/addons/p5.sound.min.js"></script>
+    <script src="/node_modules/dat.gui/build/dat.gui.min.js"></script>
+    <script>
+      const log = console.log.bind(console);
+
+      const WIDTH = window.innerWidth;
+      const HEIGHT = window.innerHeight;
+      
+      // Options
+      let opts = {
+        r: 0,
+        g: 0,
+        b: 0,
+        lines: 30,
+      };
+
+      let sound;
+
+      function preload(){
+        sound = loadSound('audio/warsaw.mp3');
+        // sound = loadSound('audio/warsaw.mp3');
+      }
+
+      function setup() {
+        let gui = new dat.GUI();
+        gui.add(opts, 'lines', 0, 100);
+
+        let canvas = createCanvas(WIDTH, HEIGHT);
+        canvas.mouseClicked(togglePlay);
+        
+        fft = new p5.FFT();
+        sound.amp(0.5);
+        sound.play();
+      }
+
+
+      // TODO: Try on white, and shrink down
+      
+      function draw() {
+        background(0);
+
+        // Work bottom up, drawing rows
+
+        // Measure amplitude
+        // returns Array of 1024 integers between 0 and 255
+        let spectrum = fft.analyze();
+
+        noStroke();
+        fill(255, 0, 255);
+        for (let i = 0; i< spectrum.length; i++){
+          let x = map(i, 0, spectrum.length, 0, WIDTH);
+          let h = -HEIGHT + map(spectrum[i], 0, 255, HEIGHT, 0);
+          rect(x, HEIGHT, WIDTH / spectrum.length, h )
+        }
+
+        // let waveform = fft.waveform();
+        // noFill();
+        // beginShape();
+        // stroke(20);
+        // for (let i = 0; i < waveform.length; i++){
+        //   let x = map(i, 0, waveform.length, 0, width);
+        //   let y = map( waveform[i], -1, 1, 0, height);
+        //   vertex(x,y);
+        // }
+        // endShape();
+
+      }
+
+      function togglePlay() {
+        if (sound.isPlaying()) {
+          sound.pause();
+        } else {
+          sound.loop();
+        }
+      }
+    </script>
+  </head>
+  <body></body>
+</html>

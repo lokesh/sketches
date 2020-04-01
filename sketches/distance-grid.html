@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1 user-scalable=0">
+    <style> body {padding: 0; margin: 0; overflow: hidden;} </style>
+    <script src="/node_modules/p5/lib/p5.min.js"></script>
+    <script>
+
+const ITEM_SIZE = 20;
+let maxDistance;
+
+function setup() {
+  createCanvas(windowWidth, windowHeight);
+  maxDistance = dist(0, 0, width, height);
+  fill(255);
+  noStroke();
+}
+
+function windowResized() {
+  resizeCanvas(windowWidth, windowHeight);
+  maxDistance = dist(0, 0, width, height);
+}
+
+function draw() {
+  background(50, 150, 255);
+
+  for (let x = 0; x < width + ITEM_SIZE; x += ITEM_SIZE) {
+    for (let y = 0; y < height + ITEM_SIZE; y += ITEM_SIZE) {
+      let d = dist(mouseX, mouseY, x, y)
+      let size = (d / maxDistance) * 100
+      fill(255);
+      ellipse(x, y, size);
+    }
+  }
+}
+
+    </script>
+  </head>
+  <body>
+  </body>
+</html>

@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, maximum-scale=1 user-scalable=0"
+    />
+    <style>
+      body {
+        padding: 0;
+        margin: 0;
+        overflow: hidden;
+      }
+    </style>
+    <script src="/node_modules/p5/lib/p5.min.js"></script>
+    <script>
+      const log = console.log.bind(console);
+      const $ = (q) => [...document.querySelectorAll(q)];
+
+      // Options
+      const WIDTH = window.innerWidth;
+      const HEIGHT = window.innerHeight;
+      
+      const CIRCLES = 6;
+
+      const LINES = 60;
+      const STROKE = 8;
+
+      const STEP = 3;
+      const CIRCLE_SIZE = 2;
+
+      const INNER_MIN = 0;
+      const OUTER_MIN = 20;
+      const OUTER_MAX = 1000;
+      
+      const COLORS = [
+        'blue',
+        'white',
+        'gold',
+        'red',
+        "#4AA25B", // green
+        "#774493", // purple
+        "#F9DB4A", // yellow
+        "#D83188", // magenta
+        "#4CAFEC", // blue
+      ];
+
+      function setup() {
+        createCanvas(WIDTH, HEIGHT);
+        noLoop();
+      }
+
+      // let rotateStart = 0;
+
+      function draw() {
+        background(0);
+        fill(255)
+        noStroke();
+
+        // rotateStart += (2 * PI) / 360;
+
+        let innerMin;
+        let outerMin;
+        let outerMax;
+
+        for (let z = 0; z < CIRCLES; z++) {
+          push();
+          translate(random(0, WIDTH), random(0, HEIGHT));
+
+          innerMin = random(INNER_MIN, INNER_MIN + 50);
+          outerMin = random(OUTER_MIN, OUTER_MIN + 50);
+          outerMax = random(OUTER_MAX - 500, OUTER_MAX + 2000);
+          for (let i = 0; i < LINES; i++) {
+
+            for (let j = innerMin; j <= random(outerMin, outerMax); j += STEP) {
+              ellipse(INNER_MIN + j, 0, CIRCLE_SIZE)
+            }
+            rotate((2 * PI) / LINES);
+          }
+          pop()
+        }
+
+        
+      }
+    </script>
+  </head>
+  <body></body>
+</html>

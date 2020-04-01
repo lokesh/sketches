@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1 user-scalable=0">
+    <style> body {padding: 0; margin: 0;} </style>
+    <script src="/node_modules/p5/lib/p5.min.js"></script>
+    <script>
+const DISTANCE = 60;
+
+let anchor;
+
+function setup() {
+  createCanvas(640, 480);
+
+  anchor = {
+    x: int(width / 2),
+    y: int(height / 2),
+  }
+}
+
+function mouseMoved() {
+  background(255);
+
+  let dx = mouseX - anchor.x ;
+  let dy = mouseY - anchor.y;
+  let angle = atan2(dy, dx);
+  anchor.x = mouseX - cos(angle) * DISTANCE;
+  anchor.y = mouseY - sin(angle) * DISTANCE;
+
+  stroke(0, 0, 0, 50);
+  strokeWeight(20);
+  strokeCap(ROUND);
+  line(mouseX, mouseY, anchor.x, anchor.y);
+
+  noStroke();
+  fill(0, 0, 0, 50);
+  ellipse(anchor.x, anchor.y, 40);
+}
+
+    </script>
+  </head>
+  <body>
+  </body>
+</html>

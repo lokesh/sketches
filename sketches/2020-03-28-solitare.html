@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, maximum-scale=1 user-scalable=0"
+    />
+    <style>
+      body {
+        padding: 0;
+        margin: 0;
+        overflow: hidden;
+      }
+    </style>
+    <script src="/node_modules/p5/lib/p5.min.js"></script>
+    <script>
+      const log = console.log.bind(console);
+
+      // Options
+      const WIDTH = 960;
+      const HEIGHT = 640;
+      
+      const CARD_WIDTH = 60;
+      const CARD_HEIGHT = 100;
+      const CARD_STROKE = 2;
+      const COLOR = '#fff';
+      const BG_COLOR = '#308600';
+
+      const GRAVITY = 0.75;
+      const X_SPEED_MAX = 12;
+      const X_SPEED_MIN = 4;
+      const Y_SPEED_MAX = 12;
+      
+      class Card {
+        constructor(x = WIDTH / 2, y = 60) {
+          this.reset();
+        }
+
+        reset() {
+          this.x = random(0, WIDTH - CARD_WIDTH);
+          this.y = 60;
+          this.yMove = random(-Y_SPEED_MAX, 0);
+          this.xMove = random(-X_SPEED_MAX, X_SPEED_MAX);
+          if (this.xMove < 0 && this.xMove > -X_SPEED_MIN) {
+            this.xMove = -X_SPEED_MIN;
+          } else if (this.xMove >= 0 && this.xMove < X_SPEED_MIN) {
+            this.xMove = X_SPEED_MIN;
+          }
+        }
+
+        update() {
+          this.yMove += GRAVITY;
+
+          this.x = this.x + this.xMove;
+          this.y = this.y + this.yMove - GRAVITY;
+
+          // Floor check
+          if (this.y + CARD_HEIGHT >= HEIGHT) {
+            this.y = HEIGHT - CARD_HEIGHT;
+            this.yMove *= -0.75;
+          }
+
+          // Horizontal bounds check
+          if (this.x < -CARD_WIDTH || this.x > WIDTH) {
+            this.reset()
+          }
+        }
+
+        draw() {
+          rect(this.x, this.y, CARD_WIDTH, CARD_HEIGHT, 4);
+        }
+      }
+
+      let card;
+
+      function setup() {
+        createCanvas(WIDTH, HEIGHT);
+        background(BG_COLOR);
+        stroke(0);
+        strokeWeight(CARD_STROKE)
+        fill(COLOR);
+
+        // for (let i = 0; i < CARDS; i++) {
+        //   cards.push(new Card());
+        // }
+
+        card = new Card();
+      }
+
+      function draw() {
+        card.draw();
+        card.update();
+        // for (const card of cards) {
+        //   card.draw();
+        //   card.update();
+        // }
+      }
+
+
+    </script>
+  </head>
+  <body></body>
+</html>

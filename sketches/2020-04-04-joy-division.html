@@ -12,6 +12,10 @@
         margin: 0;
         overflow: hidden;
       }
+
+      canvas {
+        cursor: pointer;
+      }
     </style>
     <script src="/node_modules/p5/lib/p5.min.js"></script>
     <script src="/node_modules/p5/lib/addons/p5.sound.min.js"></script>
@@ -24,12 +28,13 @@
       
       // Options
       let opts = {
-        lines: 30,
+        lines: 20,
         width: 250,
-        height: 400,
+        innerWidth: 125,
+        height: 350,
         strokeWeight: 2,
-        amplitude: 40,
-        spectrumRange: 800,
+        amplitude: 4,
+        spectrumRange: 600,
       };
 
       let sound;
@@ -43,9 +48,10 @@
         let gui = new dat.GUI();
         gui.add(opts, 'lines', 0, 100);
         gui.add(opts, 'width', 0, 1000);
+        gui.add(opts, 'innerWidth', 0, 1000);
         gui.add(opts, 'height', 0, 1000);
         gui.add(opts, 'strokeWeight', 0, 20);
-        gui.add(opts, 'amplitude', 0, 200);
+        gui.add(opts, 'amplitude', 0, 10);
         gui.add(opts, 'spectrumRange', 0, 1024);
 
         let canvas = createCanvas(CANVAS_WIDTH, CANVAS_HEIGHT);
@@ -53,26 +59,22 @@
         
         fft = new p5.FFT();
         sound.amp(0.5);
-        // sound.play();
-        // noLoop();
       }
 
-
-      // TODO: Try on white, and shrink down
-      
       function draw() {
         background(0);
         stroke(255);
         strokeWeight(opts.strokeWeight);
-        noFill();
-
+        fill(0);
 
         // Measure amplitude
         // returns Array of 1024 integers between 0 and 255
         let spectrum = fft.analyze();
 
+        let gap = opts.height / opts.lines;
         let segments = Math.floor(opts.spectrumRange / opts.lines);
-        let segmentLength = opts.width / segments;
+        let segmentLength = opts.innerWidth / segments;
+        let widthDiff = opts.width - opts.innerWidth;
         
         push();
 
@@ -81,47 +83,47 @@
           (CANVAS_HEIGHT / 2) - (opts.height / 2)
         );
 
-        let gap = opts.height / opts.lines;
-
-        // Draw top to bottom
-        // TODO: Add black fill
         for (let i = 0; i < opts.lines; i++) {
           beginShape();
+          let lineY = gap * i;
 
-          for (let j = 0; j < segments; j++) {
+          curveVertex(0, lineY);
+          curveVertex(0, lineY);
+
+          curveVertex((widthDiff / 2) - (segmentLength * 2), lineY);
+          for (let j = 0; j < segments; j++) {            
+            // Basic easing. Hand tuned.
+            let easing = 1;
+            if (j === 0 || j === segments - 1) {
+              easing = 0.1;
+            } else if (j === 1 || j === segments - 2) {
+              easing = 0.2;
+            } else if (j === 2 || j === segments - 3) {
+              easing = 0.3;
+            } else if (j === 3 || j === segments - 4) {
+              easing = 0.4;
+            } else if (j === 4 || j === segments - 5) {
+              easing = 0.6;
+            } else if (j === 5 || j === segments - 6) {
+              easing = 0.8;
+            }
+
             let amp = spectrum[(i * segments) + j];
-            amp = map(amp, 0, 255, 0, opts.amplitude)
-            curveVertex(j * segmentLength, (i * gap) - amp);
-          }
-          endShape();
+            amp = map(amp, 0, 255, 0, opts.amplitude);
+            // Make highs and lows more dynamic
+            amp = Math.pow(amp, 3);
+            // Apply easing so there is a smooth ramp up from left and right
+            amp = Math.pow(amp, easing);
 
-          // line(
-          //   0, i * gap,
-          //   opts.width, i * gap
-          // );
+            curveVertex((widthDiff / 2) + (j * segmentLength), lineY - amp);
+          }
+          
+          curveVertex(opts.width - (widthDiff / 2) + (segmentLength * 2), lineY);
+          curveVertex(opts.width, lineY);
+          curveVertex(opts.width, lineY);
+          endShape();
         }
         pop()
-
-        // noStroke();
-        // fill(255, 0, 255);
-
-        // for (let i = 0; i< spectrum.length; i++){
-        //   let x = map(i, 0, spectrum.length, 0, CANVAS_WIDTH);
-        //   let h = -CANVAS_HEIGHT + map(spectrum[i], 0, 255, CANVAS_HEIGHT, 0);
-        //   rect(x, CANVAS_HEIGHT, CANVAS_WIDTH / spectrum.length, h )
-        // }
-
-        // let waveform = fft.waveform();
-        // noFill();
-        // beginShape();
-        // stroke(20);
-        // for (let i = 0; i < waveform.length; i++){
-        //   let x = map(i, 0, waveform.length, 0, width);
-        //   let y = map( waveform[i], -1, 1, 0, height);
-        //   vertex(x,y);
-        // }
-        // endShape();
-
       }
 
       function togglePlay() {

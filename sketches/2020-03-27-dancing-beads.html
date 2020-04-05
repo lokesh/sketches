@@ -60,7 +60,7 @@
 
           loopSeed += 1;
           for (let x = 0; x < WIDTH; x = x + XSTEP) {
-            loopSeed = loopSeed + WAVINESS;    
+            loopSeed = loopSeed + WAVINESS;
             let y = noise(loopSeed) * (HEIGHT * WAVE_HEIGHT) - (HEIGHT * ((WAVE_HEIGHT - 1) / 2));
             ellipse(x + (XSTEP / 2), y, STROKE);
           }

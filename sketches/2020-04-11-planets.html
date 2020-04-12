@@ -11,11 +11,10 @@
 
 // Options
 let opts = {
-  particles: 100,
+  satellites: 10,
   size: 12,
   speed: 1,
-  distance: 100,
-  lineWeight: 2,
+  gravity: 0.001,
 }
 
 let palette = [
@@ -26,10 +25,9 @@ let palette = [
 ]
 
 let bgColor = '#101922';
-let lineColor = '#405966';
 
 // Globals
-let particles = [];
+let satellites = [];
 
 function windowResized() {
   resizeCanvas(windowWidth, windowHeight);
@@ -40,12 +38,11 @@ function setup() {
   // colorMode(HSB);
 
   let gui = new dat.GUI();
-  gui.add(opts, 'particles', 0, 250)
+  gui.add(opts, 'satellites', 0, 250)
   gui.add(opts, 'size', 1, 100)
   gui.add(opts, 'speed', 0, 10)
-  gui.add(opts, 'distance', 0, 400)
-  gui.add(opts, 'lineWeight', 0.5, 4)
-
+  gui.add(opts, 'gravity', 0, 5)
+  
   // noLoop();
   // frameRate(2);
 
@@ -57,38 +54,37 @@ function setup() {
 function draw() {
   background(bgColor);
 
-  // Add or remove particles as needed
-  let diff = particles.length - Math.floor(opts.particles);
+  // Add or remove satellites as needed
+  let diff = satellites.length - Math.floor(opts.satellites);
   if (diff > 0) {
-    particles.splice(particles.length - diff - 1);
+    satellites.splice(satellites.length - diff - 1);
   } else if (diff < 0) {
-    addParticles(Math.abs(diff));
+    addSatellites(Math.abs(diff));
   }
 
-  // Update and check distance
-  stroke(lineColor);
-  strokeWeight(opts.lineWeight);
-  for (let i = 0; i < particles.length; i++) {
-    particles[i].update();
-    for (let j = 0; j < particles.length; j++) {
-      if (particles[i].pos.dist(particles[j].pos) < opts.distance) {
-        let { x: x1, y: y1 } = particles[i].pos;
-        let { x: x2, y: y2 } = particles[j].pos;
-        line(x1, y1, x2, y2)
-      }
-    }
-  }
-  noStroke();
+
 
   // Draw
-  for (let i = 0; i < particles.length; i++) {
-    let particle = particles[i];
-    particle.draw();
+  for (let i = 0; i < satellites.length; i++) {
+    let satellite = satellites[i];
+    satellite.update()
+    satellite.draw();
   }
 }
 
 
-class Particle {
+
+
+function calcAttraction(obj1, obj2) {
+    let diff = P5.Vector.sub(obj1, obj2);
+
+    let a = (opts.gravity * obj1.mass * obj2.mass) / diff.magSq();
+    console.log(a);
+    
+    // (G * m1 * m2) / d2 * unit vector
+}
+
+class Satellite {
   constructor() {
     // random color
     this.color = random(palette);
@@ -101,10 +97,21 @@ class Particle {
 
     // random velocity
     this.vel = p5.Vector.random2D();
+
+    this.mass = 1;
+    this.density = 1;
+  }
+
+  applyForce() {
+    // Attraction
+
+
+    // Drag?
   }
 
   update() {
     // move
+
     let vel = createVector(this.vel.x, this.vel.y).mult(opts.speed);
     this.pos.add(vel);
 
@@ -128,9 +135,9 @@ class Particle {
   }
 }
 
-function addParticles(num) {
+function addSatellites(num) {
   for (let i = 0; i < num; i++) {
-    particles.push(new Particle());
+    satellites.push(new Satellite());
   }
 }
 

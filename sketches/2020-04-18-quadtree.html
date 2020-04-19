@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1 user-scalable=0">
+    <style> body {padding: 0; margin: 0; overflow: hidden;} </style>
+    <script src="/node_modules/p5/lib/p5.min.js"></script>
+    <script src="/node_modules/dat.gui/build/dat.gui.min.js"></script>
+    <script>
+
+// Options
+let opts = {
+  size: 600,
+  capacity: 1,
+  points: 200,
+  circle: false,
+  fill: false,
+  offsetPalette: 0,
+  drawPoints: false,
+}
+
+// Globals
+let tree;
+
+let palette = [
+  '#27B9C4',
+  '#C5AE42',
+  '#E6B4B8',
+  '#B83044',
+  '#E2392B'
+]
+
+function windowResized() {
+  resizeCanvas(windowWidth, windowHeight);
+}
+
+function setup() {
+  createCanvas(windowWidth, windowHeight);
+
+  let gui = new dat.GUI();
+  gui.add(opts, 'size', 0, windowHeight);
+  gui.add(opts, 'capacity', 1, 20);
+  gui.add(opts, 'points', 1, 2000);
+  gui.add(opts, 'offsetPalette', 0, palette.length);
+  gui.add(opts, 'circle');
+  gui.add(opts, 'fill');
+  gui.add(opts, 'drawPoints');
+
+  frameRate(1);
+  // noLoop();
+}
+
+function draw() {
+  background(0);
+
+  tree = new Quadtree(0, 0, opts.size);
+  for (let i = 0; i < opts.points; i++) {
+    let point = new Point(random(opts.size), random(opts.size));  
+    tree.insert(point);
+  }
+  tree.draw();
+}
+
+class Point {
+  constructor(x, y) {
+    this.x = x || random(opts.size);
+    this.y = y || random(opts.size);
+  }
+}
+
+class Quadtree {
+  constructor(x, y, size, depth = 0) {
+    this.depth = depth;
+    this.x = x;
+    this.y = y;
+    this.size = size;
+    // this.subdivided = false;
+    this.points = [];
+    this.quads = [];
+  }
+
+  checkBoundary(point) {
+    const { x: px, y: py } = point;
+    const { x, y, size } = this;
+
+    return (px >= x
+      && px <= x + size
+      && py >= y
+      && py <= y + size
+    );
+  }
+
+  insert(point) {
+    // Out of bounds
+    if (!this.checkBoundary(point)) {
+      return;
+    }
+
+    // Still has capacity
+    if (this.points.length < opts.capacity) {
+      this.points.push(point);
+      return;
+    }
+
+    // At capacity
+    // 1. Create subtrees if we haven't
+    // 2. Pass pint to child trees
+    if (this.quads.length === 0) {
+      this.subdivide();
+    }
+    // Send to all child trees, they have boundary checks so the point
+    // will only get added to the appropriate one.
+    this.quads.forEach(quad => {
+      quad.insert(point);
+    })
+  }
+
+  subdivide() {
+      const { x, y, size } = this;
+      const half = size / 2;
+      const depth = this.depth + 1;
+      
+      this.quads.push(
+        new Quadtree(x, y, half, depth), // NW
+        new Quadtree(x + half, y, half, depth), // NE
+        new Quadtree(x, y + half, half, depth), // SW
+        new Quadtree(x + half, y + half, half, depth), // SW
+      )
+  }
+
+  draw() {
+    let color = palette[(this.depth + Math.floor(opts.offsetPalette)) % palette.length];
+
+    noStroke();
+    noFill();
+
+    if (opts.fill) {
+      fill(color)
+    } else {
+      stroke(color);  
+    }
+    
+    // Draw circle or square
+    if (opts.circle) {
+      ellipseMode(CORNER);
+      ellipse(this.x, this.y, this.size);
+    } else {
+      rect(this.x, this.y, this.size);
+    }
+
+    // Draw points
+    if (opts.drawPoints) {
+      ellipseMode(RADIUS);
+      fill(color)
+      noStroke();
+      for (let i = 0; i < this.points.length; i++) {      
+        let { x, y } = this.points[i];
+        ellipse(x, y, 2);
+      }
+    }
+
+    // Draw children
+    this.quads.forEach((quad) => {
+      quad.draw();
+    });
+  }
+}
+    </script>
+  </head>
+  <body>
+  </body>
+</html>

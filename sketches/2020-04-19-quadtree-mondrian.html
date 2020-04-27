@@ -12,9 +12,10 @@
 let opts = {
   size: 600,
   capacity: 1,
-  points: 2000,
+  points: 24,
+  strokeWeight: 8,
   circle: false,
-  fill: false,
+  fill: true,
   offsetPalette: 0,
   drawPoints: false,
 }
@@ -22,11 +23,14 @@ let opts = {
 // Globals
 let tree;
 
+let strokeColor = '#281A0A';
+
 let palette = [
-  // '#27B9C4',
-  // '#C5AE42',
-  '#E6B4B8',
-  // '#B83044',
+  '#E7E6E3', // near white
+  '#E7E6E3', // near white
+  '#BA4433', // red
+  '#E4B85D', // yellow
+  '#20436F', // blue
 ]
 
 function windowResized() {
@@ -41,21 +45,23 @@ function setup() {
   gui.add(opts, 'capacity', 1, 20);
   gui.add(opts, 'points', 1, 2000);
   gui.add(opts, 'offsetPalette', 0, palette.length);
-  gui.add(opts, 'circle');
+  gui.add(opts, 'strokeWeight', 0, 10);
   gui.add(opts, 'fill');
+  gui.add(opts, 'circle');
   gui.add(opts, 'drawPoints');
+  gui.close();
 
-  frameRate(1);
-  // noLoop();
+  // frameRate(1);
+  noLoop();
 }
 
 function draw() {
-  background(0);
+  background(255);
 
-  tree = new Quadtree(0, 0, opts.size);
+  tree = new Quadtree(24, 24, opts.size);
   const half = opts.size / 2;
   for (let i = 0; i < opts.points; i++) {
-    let point = new Point(randomGaussian(half, half / 3 ), randomGaussian(half, half / 3));  
+    let point = new Point(randomGaussian(half, half / 2 ), randomGaussian(half, half / 2));  
     tree.insert(point);
   }
   tree.draw();
@@ -130,8 +136,10 @@ class Quadtree {
 
   draw() {
     let color = palette[(this.depth + Math.floor(opts.offsetPalette)) % palette.length];
+    color = random(palette);
 
-    noStroke();
+    stroke(strokeColor);
+    strokeWeight(opts.strokeWeight);
     noFill();
 
     if (opts.fill) {

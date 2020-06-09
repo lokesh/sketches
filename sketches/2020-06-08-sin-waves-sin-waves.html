@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1 user-scalable=0">
+    <style> body {padding: 0; margin: 0; overflow: hidden;} </style>
+    <script src="/node_modules/p5/lib/p5.min.js"></script>
+    <script src="/node_modules/dat.gui/build/dat.gui.min.js"></script>
+    <script>
+
+// Options
+let opts = {
+  lines: 80,
+  xAmp: 400, // Horizontal amplitude
+  yAmp: 200, // Vertical amplitude
+  width: 150,
+  frequency: 45, // Lines for a full wave
+  speed: 1,
+  strokeWeight: 2,
+}
+
+function preload() { }
+
+function windowResized() {
+  resizeCanvas(windowWidth, windowHeight);
+}
+
+function setup() {
+  createCanvas(windowWidth, windowHeight);
+
+  let gui = new dat.GUI();
+  gui.add(opts, 'lines', 1, 200);
+  gui.add(opts, 'xAmp', 0, 1000);
+  gui.add(opts, 'yAmp', 0, 500);
+  gui.add(opts, 'width', 0, 500);
+  gui.add(opts, 'frequency', 0, 200);
+  gui.add(opts, 'speed', 0, 5);
+  gui.add(opts, 'strokeWeight', 0, 10);
+}
+
+
+
+function draw() {
+  background(0);
+  fill(0)
+  stroke(100);
+  strokeWeight(opts.strokeWeight);
+
+  // calc gap
+  const gap = windowHeight / opts.lines;
+
+  // Calc amount of frequency change per line
+  const frequencyInc = TWO_PI / opts.frequency;
+  let frequency = frameCount / (100 - opts.speed * opts.speed);
+
+  let height;
+  let xOffset;
+
+  let centerX = windowWidth / 2;
+
+  let fillColor = 0;
+
+  for (let i = 0; i < opts.lines; i++) {
+    beginShape();
+
+    let lineY = gap * i;
+
+    // Draw left edge for fill
+    curveVertex(0, lineY + windowHeight);
+    curveVertex(0, lineY + windowHeight);
+
+    // Start on x-axis
+    curveVertex(0, lineY);
+    curveVertex(0, lineY);
+
+    frequency += frequencyInc;
+
+    height = map(sin(frequency), -1, 1, opts.yAmp * -0.5, opts.yAmp * 0.5)
+    xOffset = map(sin(frequency * -1), -1, 1, opts.xAmp * -0.5, opts.xAmp * 0.5)
+
+    let leftX = centerX - (opts.width / 2) + xOffset;
+    let middleX = centerX + xOffset;
+    let rightX = centerX + (opts.width / 2) + xOffset;
+    
+    console.log(leftX, middleX, rightX);
+    curveVertex(leftX - 200, lineY);
+    curveVertex(leftX, lineY);
+    curveVertex(middleX, lineY + height);
+    curveVertex(rightX, lineY);
+    curveVertex(rightX + 200, lineY);
+
+
+
+    // End on x-axis
+    curveVertex(windowWidth, lineY);
+    curveVertex(windowWidth, lineY);
+
+    // Draw right edge for fill
+    curveVertex(windowWidth, lineY + windowHeight);
+    curveVertex(windowWidth, lineY + windowHeight);
+
+
+    endShape();
+  }
+  // while()
+
+}
+    </script>
+  </head>
+  <body>
+  </body>
+</html>

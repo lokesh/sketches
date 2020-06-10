@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1 user-scalable=0">
+    <style> body {padding: 0; margin: 0; overflow: hidden;} </style>
+    <script src="/node_modules/p5/lib/p5.min.js"></script>
+    <script>
+
+let font;
+function preload() {
+  font = loadFont('fonts/jetbrainsmono-extrabold.ttf');
+  // font = loadFont('fonts/rubikmono.ttf');
+}
+
+function windowResized() {
+  resizeCanvas(windowWidth, windowHeight);
+}
+
+function setup() {
+  createCanvas(windowWidth, windowHeight);
+  noLoop();
+}
+
+
+function draw() {
+  background(0);
+  fill(255)
+  
+  // PARAMS: textToPoints(txt, x, y, fontSize, [options])
+  let chars = 'textToPoints'.split('').map(char => {
+    let bounds = font.textBounds(char, 0, 0, 200, 96);
+    let points = font.textToPoints(char, 0, 200, 96, {
+      sampleFactor: 5,
+      simplifyThreshold: 0,
+    });  
+
+    return {
+      bounds,
+      points,
+    };
+  });
+
+  stroke(250);
+  fill(125);
+
+  // let x = 0;
+  chars.forEach((char, index) => {
+    const { bounds, points } = char;
+    // if (index !== 0) {
+    //   x += bounds.w;
+    // }
+    beginShape();
+    for (let i = 0; i < points.length; i++) {
+      let p = points[i];
+      vertex(p.x + index * 60, p.y);
+    };  
+
+    endShape(CLOSE);
+  })
+}
+    </script>
+  </head>
+  <body>
+  </body>
+</html>

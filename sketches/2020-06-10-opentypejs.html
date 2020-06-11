@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1 user-scalable=0">
+    <style> body {padding: 0; margin: 0; overflow: hidden;} </style>
+    <script src="/node_modules/p5/lib/p5.min.js"></script>
+    <script src="/node_modules/opentype.js/dist/opentype.min.js"></script>
+    <script>
+
+
+// const fontFile = 'fonts/rubikmono.ttf';
+// const fontFile = 'fonts/jetbrainsmono-extrabold.ttf';
+const fontFile = 'fonts/inter-black.ttf';
+
+let font;
+let path;
+let ctx;
+
+async function make(){
+    const type = await opentype.load(fontFile);
+    // const font = await opentype.load('fonts/rubikmono.ttf');
+    path = type.getPath('Hello, World!', 0, 250, 72);
+    path.fill = 'rgba(255, 255, 255, 1)';
+    // path.stroke = 'rgba(0, 0, 0, 0.2)';
+    // path.strokeWidth = '2';
+
+    ctx = document.querySelector('canvas').getContext('2d');
+   
+    // console.log(path);
+}
+
+function setup() {
+  createCanvas(windowWidth, windowHeight);
+
+  make();
+
+  // frameRate(1);
+  // noLoop();
+}
+
+function draw() {
+  background(0);
+  if (!path) return;
+  console.log(path);
+
+  // M: Move { x: 100, y: 200 }
+  // L: Line { x: 100, y: 200 }
+  // C: Bezier { x1: 0, y1: 50, x2: 100, y2: 200, x: 100, y: 200 }
+  // Q: Quadratic { x1: 0, y1: 50, x: 100, y: 200 }
+  // Z: Close
+
+  path.commands.forEach((cmd, index) => {
+    switch (cmd.type) {
+      case 'M':
+      case 'L':
+        // cmd.x += 10;
+        cmd.y *= map(cmd.x, 0, 1000, 1, 1.1);
+        break
+      case 'C':
+        // cmd.x1 += 10;
+        cmd.y1 *= map(cmd.x1, 0, 1000, 1, 1.1);
+        // cmd.x2 += 10;
+        cmd.y2 *= map(cmd.x2, 0, 1000, 1, 1.1);
+        // cmd.x += 10;
+        cmd.y *= map(cmd.x, 0, 1000, 1, 1.1);
+        break
+      case 'Q':
+        // cmd.x1 += 10;
+        cmd.y1 *= map(cmd.x1, 0, 1000, 1, 1.1);
+        // cmd.x += 10;
+        cmd.y *= map(cmd.x, 0, 1000, 1, 1.1);
+        break
+    }
+  })
+
+  path.draw(ctx);
+
+  // background(0);
+  // fill(255)
+  
+  // // PARAMS: textToPoints(txt, x, y, fontSize, [options])
+  // let chars = 'textToPoints'.split('').map(char => {
+  //   let bounds = font.textBounds(char, 0, 0, 200, 96);
+  //   let points = font.textToPoints(char, 0, 200, 96, {
+  //     sampleFactor: 5,
+  //     simplifyThreshold: 0,
+  //   });  
+
+  //   return {
+  //     bounds,
+  //     points,
+  //   };
+  // });
+
+  stroke(250);
+  fill(125);
+
+  // let x = 0;
+  // chars.forEach((char, index) => {
+  //   const { bounds, points } = char;
+  //   beginShape();
+  //   for (let i = 0; i < points.length; i++) {
+  //     let p = points[i];
+  //     vertex(p.x + index * 60, p.y);
+  //   };  
+  //   endShape(CLOSE);
+  // })
+}
+
+function windowResized() {
+  resizeCanvas(windowWidth, windowHeight);
+}
+
+    </script>
+  </head>
+  <body>
+  </body>
+</html>

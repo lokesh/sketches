@@ -3,46 +3,90 @@
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1 user-scalable=0">
-    <style> body {padding: 0; margin: 0; overflow: hidden;} </style>
-    <script src="/node_modules/p5/lib/p5.min.js"></script>
+    <style>
+      body {padding: 0; margin: 0; overflow: hidden;}
+    </style>
+    <!-- <script src="/node_modules/p5/lib/p5.min.js"></script> -->
     <script src="/node_modules/opentype.js/dist/opentype.min.js"></script>
-    <script>
+
+
+  </head>
+  <body>
+
+<canvas id="canvas"></canvas>
+
+<script>
+
+
+function map(n, start1, stop1, start2, stop2) {
+  return ((n-start1)/(stop1-start1))*(stop2-start2)+start2;
+};
+
+// OPTIONS
+const opts = {
+  LOOP: true,
+  BG_COLOR: '#000',
+};
+
 
 
 // const fontFile = 'fonts/rubikmono.ttf';
 // const fontFile = 'fonts/jetbrainsmono-extrabold.ttf';
 const fontFile = 'fonts/inter-black.ttf';
 
+const canvas = document.getElementsByTagName('canvas')[0];
+const ctx = canvas.getContext('2d');
+
+// Global state
 let font;
 let path;
-let ctx;
 
-async function make(){
-    const type = await opentype.load(fontFile);
-    // const font = await opentype.load('fonts/rubikmono.ttf');
-    path = type.getPath('Hello, World!', 0, 250, 72);
-    path.fill = 'rgba(255, 255, 255, 1)';
-    // path.stroke = 'rgba(0, 0, 0, 0.2)';
-    // path.strokeWidth = '2';
+/**
+ * Size canvas
+ */
+function setupCanvas() {
+  const width  = window.innerWidth;
+  const height = window.innerHeight;
+  canvas.style.width = `${width}px`;
+  canvas.style.height = `${height}px`;
 
-    ctx = document.querySelector('canvas').getContext('2d');
-   
-    // console.log(path);
+  // Set actual size in memory (scaled to account for extra pixel density).
+  // Change scale to 1 on retina screens to see blurry canvas.
+  let scale = window.devicePixelRatio;
+  canvas.width = width * scale;
+  canvas.height = height * scale;
+
+  // Normalize coordinate system to use css pixels.
+  ctx.scale(scale, scale);
 }
 
-function setup() {
-  createCanvas(windowWidth, windowHeight);
+/**
+ * Clear canvas
+ */
+function clearCanvas() {
+  ctx.fillStyle = opts.BG_COLOR;
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
+}
 
-  make();
 
-  // frameRate(1);
-  // noLoop();
+async function main() {
+  
+  // Size canvas 
+  setupCanvas();
+
+  // Load font and get path
+  font = await opentype.load(fontFile);
+  path = font.getPath('Hello, World!', 0, 250, 72);
+
+  // Set up colors and fills
+  path.fill = 'rgba(255, 255, 255, 1)';
+
+  draw();
 }
 
 function draw() {
-  background(0);
-  if (!path) return;
-  console.log(path);
+  clearCanvas();
+
 
   // M: Move { x: 100, y: 200 }
   // L: Line { x: 100, y: 200 }
@@ -74,46 +118,16 @@ function draw() {
     }
   })
 
-  path.draw(ctx);
+  path.draw(ctx);    
 
-  // background(0);
-  // fill(255)
-  
-  // // PARAMS: textToPoints(txt, x, y, fontSize, [options])
-  // let chars = 'textToPoints'.split('').map(char => {
-  //   let bounds = font.textBounds(char, 0, 0, 200, 96);
-  //   let points = font.textToPoints(char, 0, 200, 96, {
-  //     sampleFactor: 5,
-  //     simplifyThreshold: 0,
-  //   });  
-
-  //   return {
-  //     bounds,
-  //     points,
-  //   };
-  // });
-
-  stroke(250);
-  fill(125);
-
-  // let x = 0;
-  // chars.forEach((char, index) => {
-  //   const { bounds, points } = char;
-  //   beginShape();
-  //   for (let i = 0; i < points.length; i++) {
-  //     let p = points[i];
-  //     vertex(p.x + index * 60, p.y);
-  //   };  
-  //   endShape(CLOSE);
-  // })
+  if (opts.LOOP) {
+    requestAnimationFrame(draw);
+  }
 }
 
-function windowResized() {
-  resizeCanvas(windowWidth, windowHeight);
-}
+setupCanvas();
+main();
 
-    </script>
-  </head>
-  <body>
+    </script>    
   </body>
 </html>

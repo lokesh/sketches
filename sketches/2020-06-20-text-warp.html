@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1 user-scalable=0">
+    <style>
+      body {
+        padding: 0;
+        margin: 0;
+        overflow: hidden;
+        background: linear-gradient(#336, #003);
+      }
+    </style>
+    <!-- <script src="/node_modules/p5/lib/p5.min.js"></script> -->
+    <script src="/node_modules/opentype.js/dist/opentype.min.js"></script>
+
+
+  </head>
+  <body>
+
+<canvas id="canvas"></canvas>
+
+<script>
+
+
+function map(n, start1, stop1, start2, stop2) {
+  return ((n-start1)/(stop1-start1))*(stop2-start2)+start2;
+};
+
+// OPTIONS
+const opts = {
+  LOOP: false,
+  
+  FONT_SIZE: 160,
+  FILL: '#CC3822',
+  BG_COLOR: '#000',
+
+  LINE_GAP: 10,
+
+  CURVE_STRENGTH: 0.9,
+};
+
+const fontFile = 'fonts/rubikmono.ttf';
+
+const canvas = document.getElementsByTagName('canvas')[0];
+const ctx = canvas.getContext('2d');
+
+// Global state
+let font;
+let path;
+let lines = [];
+let width = window.innerWidth;
+let height = window.innerHeight;
+
+
+/**
+ * Size canvas
+ */
+function setupCanvas() {
+  width = window.innerWidth;
+  height = window.innerHeight;
+  canvas.style.width = `${width}px`;
+  canvas.style.height = `${height}px`;
+
+  // Set actual size in memory (scaled to account for extra pixel density).
+  // Change scale to 1 on retina screens to see blurry canvas.
+  let scale = window.devicePixelRatio;
+  canvas.width = width * scale;
+  canvas.height = height * scale;
+
+  // Normalize coordinate system to use css pixels.
+  ctx.scale(scale, scale);
+}
+
+/**
+ * Clear canvas
+ */
+function clearCanvas() {
+  ctx.fillStyle = opts.BG_COLOR;
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
+}
+
+
+class Line {
+  constructor(font, str) {
+    // getPath(text, x, y (of baseline), fontSize, options)
+    this.str = str.trim().split(' ').join('');
+    this.path = font.getPath(this.str, 0, 0, opts.FONT_SIZE);
+    this.path.fill = opts.FILL;
+    // this.path.stroke = 'black'
+    // this.path.strokeWidth = 4;
+    
+    Object.assign(this, this.path.getBoundingBox());
+
+    this.width = this.x2 - this.x1;
+    this.height = this.y2 - this.y1;
+  }
+  
+  moveY(y) {
+    this.path.commands.forEach(cmd => {
+      switch (cmd.type) {
+        case 'M':
+        case 'L':
+          cmd.y += y;
+          break;
+        case 'C':
+          cmd.y1 += y;
+          cmd.y2 += y;
+          cmd.y += y;
+          break;
+        case 'Q':
+          cmd.y1 += y;
+          cmd.y += y;
+          break;
+      }
+    });
+  }
+
+  stretchX() {
+    this.path.commands.forEach(cmd => {
+      Line.processCmdPoints(cmd, (x, y) => {
+        return {
+          x: map(x, this.x1, this.x2, 0, width),
+          y,
+        };
+      })
+    });
+  }
+
+  topOffset() {
+    this.path.commands.forEach(cmd => {
+      Line.processCmdPoints(cmd, (x, y) => {
+        let yImpact = (this.y2 - y) / this.height * opts.CURVE_STRENGTH;
+
+        let sinX = map(x, 0, width, 0, 2 * Math.PI)
+        let sinY = Math.sin(sinX);
+        const offsetY = y + (sinY * this.height) * yImpact;
+        return {
+          x,
+          y: offsetY,
+        };
+      })
+    });
+  }
+
+  bottomOffset() {
+    this.path.commands.forEach(cmd => {
+      Line.processCmdPoints(cmd, (x, y) => {
+        let yImpact = (y - this.y1) / this.height * opts.CURVE_STRENGTH;
+
+        let sinX = map(x, 0, width, 0, 2 * Math.PI)
+        let sinY = Math.sin(sinX);
+        const offsetY = y + (sinY * this.height) * yImpact;
+        return {
+          x,
+          y: offsetY,
+        };
+      })
+    });
+  }
+
+  static processCmdPoints(cmd, func) {
+    // callback.apply(this, args);
+    if (cmd.x) {
+      let point = func.apply(this, [cmd.x, cmd.y]);
+      cmd.x = point.x;
+      cmd.y = point.y;
+    } 
+    if (cmd.x1) {
+      let point = func.apply(this, [cmd.x1, cmd.y1]);
+      cmd.x1 = point.x;
+      cmd.y1 = point.y;
+    }
+    if (cmd.x2) {
+      let point = func.apply(this, [cmd.x2, cmd.y2]);
+      cmd.x2 = point.x;
+      cmd.y2 = point.y;
+    }
+  }
+}
+
+async function main() {
+  
+  // Size canvas 
+  setupCanvas();
+
+  // Load font and get path
+  font = await opentype.load(fontFile);
+  
+  lines.push(
+    new Line(font, 'The Moving Sidewalks'),
+    new Line(font, 'Featuring Billy Gibbons'),
+    new Line(font, 'Austin Pysch Fest'),
+    new Line(font, 'Sunday April 28th 2018'),
+    new Line(font, 'Carson Creek Ranch'),
+    new Line(font, 'Austin Texas'),
+    // new Line(font, 'The West'),
+    // new Line(font, 'Coast'),
+    // new Line(font, 'Pop Art'),
+    // new Line(font, 'Experimental'),
+    // new Line(font, 'Band'),
+    // new Line(font, 'Part One'),
+    // new Line(font, 'This is just a test')
+  );
+  draw();
+}
+
+function draw() {
+  // clearCanvas();
+
+
+  // M: Move { x: 100, y: 200 }
+  // L: Line { x: 100, y: 200 }
+  // C: Bezier { x1: 0, y1: 50, x2: 100, y2: 200, x: 100, y: 200 }
+  //    ctx.bezierCurveTo(0, 50, 100, 200, 100, 200);
+  // Q: Quadratic { x1: 0, y1: 50, x: 100, y: 200 }
+  //     ctx.quadraticCurveTo(0, 50, 100, 200);
+  // Z: Close
+
+  // path.commands.forEach((cmd, index) => {
+  //   switch (cmd.type) {
+  //     case 'M':
+  //     case 'L':
+  //       // cmd.x += 10;
+  //       cmd.y *= map(cmd.x, 0, 1000, 1, 1.1);
+  //       break
+  //     case 'C':
+  //       // cmd.x1 += 10;
+  //       cmd.y1 *= map(cmd.x1, 0, 1000, 1, 1.1);
+  //       // cmd.x2 += 10;
+  //       cmd.y2 *= map(cmd.x2, 0, 1000, 1, 1.1);
+  //       // cmd.x += 10;
+  //       cmd.y *= map(cmd.x, 0, 1000, 1, 1.1);
+  //       break
+  //     case 'Q':
+  //       // cmd.x1 += 10;
+  //       cmd.y1 *= map(cmd.x1, 0, 1000, 1, 1.1);
+  //       // cmd.x += 10;
+  //       cmd.y *= map(cmd.x, 0, 1000, 1, 1.1);
+  //       break
+  //   }
+  // })
+
+
+  let y = 0;
+  lines.forEach((line, index) => {
+    y += line.height + opts.LINE_GAP;
+
+    line.stretchX();
+    
+    if (index % 2 === 0) {
+      line.bottomOffset();
+    } else {
+      line.topOffset();
+    }
+
+    line.moveY(y);
+
+    line.path.draw(ctx);
+  })
+
+  if (opts.LOOP) {
+    requestAnimationFrame(draw);
+  }
+}
+
+setupCanvas();
+main();
+
+    </script>    
+  </body>
+</html>

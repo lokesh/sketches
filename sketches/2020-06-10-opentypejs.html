@@ -4,7 +4,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1 user-scalable=0">
     <style>
-      body {padding: 0; margin: 0; overflow: hidden;}
+      body {font-family: Menlo; font-size: 12px; padding: 0; margin: 0; overflow: hidden;}
     </style>
     <!-- <script src="/node_modules/p5/lib/p5.min.js"></script> -->
     <script src="/node_modules/opentype.js/dist/opentype.min.js"></script>
@@ -12,6 +12,7 @@
 
   </head>
   <body>
+<a href="https://github.com/opentypejs/opentype.js">Github</a>
 
 <canvas id="canvas"></canvas>
 
@@ -27,8 +28,6 @@ const opts = {
   LOOP: true,
   BG_COLOR: '#000',
 };
-
-
 
 // const fontFile = 'fonts/rubikmono.ttf';
 // const fontFile = 'fonts/jetbrainsmono-extrabold.ttf';
@@ -91,7 +90,9 @@ function draw() {
   // M: Move { x: 100, y: 200 }
   // L: Line { x: 100, y: 200 }
   // C: Bezier { x1: 0, y1: 50, x2: 100, y2: 200, x: 100, y: 200 }
+  //    ctx.bezierCurveTo(0, 50, 100, 200, 100, 200);
   // Q: Quadratic { x1: 0, y1: 50, x: 100, y: 200 }
+  //     ctx.quadraticCurveTo(0, 50, 100, 200);
   // Z: Close
 
   path.commands.forEach((cmd, index) => {

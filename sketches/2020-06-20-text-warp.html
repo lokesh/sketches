@@ -5,15 +5,13 @@
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1 user-scalable=0">
     <style>
       body {
-        padding: 0;
+        padding: 5px 10px;
         margin: 0;
         overflow: hidden;
         background: linear-gradient(#336, #003);
       }
     </style>
-    <!-- <script src="/node_modules/p5/lib/p5.min.js"></script> -->
     <script src="/node_modules/opentype.js/dist/opentype.min.js"></script>
-
 
   </head>
   <body>
@@ -49,16 +47,14 @@ const ctx = canvas.getContext('2d');
 let font;
 let path;
 let lines = [];
-let width = window.innerWidth;
-let height = window.innerHeight;
+let width = window.innerWidth - 20;
+let height = window.innerHeight - 10;
 
 
 /**
  * Size canvas
  */
 function setupCanvas() {
-  width = window.innerWidth;
-  height = window.innerHeight;
   canvas.style.width = `${width}px`;
   canvas.style.height = `${height}px`;
 
@@ -91,7 +87,6 @@ class Line {
     // this.path.strokeWidth = 4;
     
     Object.assign(this, this.path.getBoundingBox());
-
     this.width = this.x2 - this.x1;
     this.height = this.y2 - this.y1;
   }
@@ -255,7 +250,6 @@ function draw() {
     }
 
     line.moveY(y);
-
     line.path.draw(ctx);
   })
 

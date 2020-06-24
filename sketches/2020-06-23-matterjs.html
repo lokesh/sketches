@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1 user-scalable=0">
+    <style> body {padding: 0; margin: 0; overflow: hidden;} </style>
+    <script src="/node_modules/p5/lib/p5.min.js"></script>
+    <script src="/node_modules/matter-js/build/matter.min.js"></script>
+    <script src="/node_modules/dat.gui/build/dat.gui.min.js"></script>
+    <script>
+
+// -------
+// Options
+// -------
+let opts = {
+  lines: 5,
+}
+
+
+
+// -------
+// Classes
+// -------
+
+class Box {
+  constructor(x, y, w, h, opts) {
+    this.w = w;
+    this.h = h;
+    this.body = Bodies.rectangle(x, y, w, h, opts);
+    World.add(world, this.body);
+  }
+
+  draw() {
+    const { x, y } = this.body.position;
+    // this.body.angle;
+
+    fill(100);
+
+    push();
+    translate(x, y);
+    rotate(this.body.angle);
+    rectMode(CENTER);
+    rect(0, 0, this.w, this.h);
+    pop();
+  }
+}
+
+
+
+
+// -------
+// Globals
+// -------
+
+// Module aliases
+const { Engine, Render, World, Bodies } = Matter;
+
+let engine;
+let world;
+let boxes = [];
+
+function windowResized() {
+  resizeCanvas(windowWidth, windowHeight);
+}
+
+
+function mouseDragged() {
+  boxes.push(
+    new Box(
+      mouseX - 50,
+      mouseY - 50,
+      random(10, 100),
+      random(10, 100),
+      {
+        angle: random(0, 2 * PI),
+        torque: random(-0.01, 0.01),
+        density: 0.00001, // default 0.001
+        friction: 1, // default 0.1
+      }
+    )
+  );
+}
+
+function setup() {
+  // Options
+  let gui = new dat.GUI();
+  gui.add(opts, 'lines', 0, 10);
+
+  createCanvas(windowWidth, windowHeight);
+
+  // Matterjs 
+  engine = Engine.create();
+  world = engine.world;
+  // boxes.push(new Box(400, 200, 80, 80);
+  // box1 = Bodies.rectangle(400, 200, 80, 80);
+  const ground = Bodies.rectangle(windowWidth / 2, windowHeight - 10, windowWidth, 20, { isStatic: true });
+  console.log(ground);
+  World.add(world, ground);
+  Engine.run(engine);
+
+  // noLoop();
+}
+
+
+function draw() {
+  background(0);
+  fill(255);
+
+  boxes.forEach(box =>{
+    box.draw();
+  });
+
+  // rect(box1.position.x, box1.position.y, 80, 80);
+  // rect(box1.position.x, box1.position.y, 80, 80);
+  // box1.verticies[0] 
+  
+  rect(0, windowHeight - 20, windowWidth, 20);
+
+}
+    </script>
+  </head>
+  <body>
+  </body>
+</html>

@@ -34,8 +34,8 @@ class Box {
     const { x, y } = this.body.position;
     // this.body.angle;
 
-    fill(100);
-
+    // fill('rgba(255, 255, 255, 0.01)');
+    // stroke('rgba(255, 255, 255, 0.1)')
     push();
     translate(x, y);
     rotate(this.body.angle);
@@ -64,18 +64,28 @@ function windowResized() {
 }
 
 
-function mouseDragged() {
+function mousePressed() {
+  let width = random(10, 300);
+  let height = random(10, 300);
+  let area = width * height;
   boxes.push(
     new Box(
       mouseX - 50,
       mouseY - 50,
-      random(10, 100),
-      random(10, 100),
+      width,
+      height,
       {
         angle: random(0, 2 * PI),
-        torque: random(-0.01, 0.01),
-        density: 0.00001, // default 0.001
-        friction: 1, // default 0.1
+        
+        density: 0.000001, // 0.001
+        
+        friction: 1, // 0.1
+        
+        // Effects elasticisty, bounce back
+        // restitution: 0.8, // 0
+        
+        // Initial angular velocity
+        torque: random(-0.01, 0.01) * (area / 10000),
       }
     )
   );
@@ -87,13 +97,15 @@ function setup() {
   gui.add(opts, 'lines', 0, 10);
 
   createCanvas(windowWidth, windowHeight);
+  background(0);
 
   // Matterjs 
   engine = Engine.create();
   world = engine.world;
-  // boxes.push(new Box(400, 200, 80, 80);
-  // box1 = Bodies.rectangle(400, 200, 80, 80);
-  const ground = Bodies.rectangle(windowWidth / 2, windowHeight - 10, windowWidth, 20, { isStatic: true });
+
+  // engine.world.gravity.scale = 0.0001; // 0.001
+
+  const ground = Bodies.rectangle(windowWidth / 2, windowHeight - 50, windowWidth, 100, { isStatic: true });
   console.log(ground);
   World.add(world, ground);
   Engine.run(engine);
@@ -103,19 +115,15 @@ function setup() {
 
 
 function draw() {
-  background(0);
-  fill(255);
+  background(50);;
+  fill(200);
 
   boxes.forEach(box =>{
     box.draw();
   });
-
-  // rect(box1.position.x, box1.position.y, 80, 80);
-  // rect(box1.position.x, box1.position.y, 80, 80);
-  // box1.verticies[0] 
   
-  rect(0, windowHeight - 20, windowWidth, 20);
-
+  // Draw ground
+  rect(0, windowHeight - 100, windowWidth, 100);
 }
     </script>
   </head>

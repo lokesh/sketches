@@ -5,6 +5,6 @@
 
 ### Initial set up
 
-`npm i -g liveserver`
+`npm i -g live-server`
 
 

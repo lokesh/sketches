@@ -8,24 +8,45 @@
     <script src="/node_modules/dat.gui/build/dat.gui.min.js"></script>
     <script>
 
+
+/*
+  README
+  ---
+  Press Up Arrow to cycle.
+
+*/
+
+
 // Options
 let opts = {
   bg: '#fff',
   count: 20,
-  size: 20,
+  size: 10,
   canvasWidth: 400,
   canvasHeight: 600,
 }
 
 
 let COLORS = [
-  '#27B9C4',
-  '#C5AE42',
-  '#E6B4B8',
-  '#B83044',
-  '#E2392B'
+  '#333', // black
+  '#B33', // red
+  '#fc5', // yellow
+  '#24c', // blue
 ]
 
+// Grays
+
+// let COLORS = [
+//   '#333',
+//   '#666',
+//   '#999',
+//   '#bbb',
+//   '#eee',
+// ]
+
+
+let firstPass = true;
+let shouldUpdate = false; // Set to true when key is pressed
 
 function preload() { }
 
@@ -39,16 +60,18 @@ function setup() {
 
   let gui = new dat.GUI();
   gui.addColor(opts, 'bg')
-  gui.add(opts, 'count', 0, 100)
+  gui.add(opts, 'count', 0, 4000)
   gui.add(opts, 'size', 0, 128);
-  gui.add(opts, 'canvasWidth', 0, 1000)
+  gui.add(opts, 'canvasWidth', 0, 2000)
   gui.add(opts, 'canvasHeight', 0, 1000)
 
   // noLoop();
-  frameRate(1);
+  // frameRate(4);
 }
 
 function draw() {
+  if (!firstPass && !keyIsDown(UP_ARROW)) return;
+
   resizeCanvas(opts.canvasWidth, opts.canvasHeight);
   background(opts.bg);
   noStroke();
@@ -57,6 +80,7 @@ function draw() {
   let rows = Math.floor(opts.canvasHeight / opts.size);
   let gridSquares = cols * rows;
 
+  // Draw pixels
   for (let i = 0; i < opts.count; i++) {
     let row = Math.floor(Math.random() * rows);
     let col = Math.floor(Math.random() * cols);
@@ -68,6 +92,9 @@ function draw() {
     // Rect
     rect(col * opts.size, row * opts.size, opts.size, opts.size);
   }
+
+  firstPass = false;
+  shouldUpdate = false;
 }
     </script>
   </head>

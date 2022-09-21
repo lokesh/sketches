@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1 user-scalable=0">
+    <style>
+    body {padding: 0; margin: 0; overflow: hidden; background: #999;}
+    canvas {
+      image-rendering: -moz-crisp-edges;
+      image-rendering: -webkit-crisp-edges;
+      image-rendering: pixelated;
+      image-rendering: crisp-edges;
+      transform-origin: top left;
+      transform: scale(2);
+      /*scale: 2;*/
+    }
+  </style>
+    <script src="/node_modules/p5/lib/p5.min.js"></script>
+    <script src="/node_modules/dat.gui/build/dat.gui.min.js"></script>
+    <script>
+
+// Options
+let o = {
+  size: 1,
+  fps: 60,
+  rows: 240,
+  cols: 240,
+  wrap: true,
+}
+
+/*
+
+
+draw
+
+  - Multi-dimensional array - current state
+  - generate new one
+
+
+funcs
+get neighbors
+get neighborCount
+
+
+
+
+
+*/
+
+
+
+let grid;
+
+
+function make2dArray(rows, cols) {
+  let arr = Array(rows).fill(0).map(x => Array(cols).fill(0));
+
+  for (let row = 0; row < o.rows; row++) {
+    for (let col = 0; col < o.cols; col++) {
+      arr[row][col] = floor(random(2));  
+    }
+  }
+  return arr; 
+}
+
+function getNeighborCount(row, col) {
+  let count = 0;
+  for (let i = -1; i < 2; i++) {
+    let rowIndex = (row + i);
+
+    for (let j = -1; j < 2; j++) {
+      let colIndex = (col + j);  
+
+      if (o.wrap) {
+        rowIndex = (rowIndex + o.rows) % o.rows; 
+        colIndex = (colIndex + o.cols) % o.cols;
+      }
+
+      if (rowIndex < 0 || rowIndex >= o.rows
+        || colIndex < 0 || colIndex >= o.cols){
+        continue;
+      }
+      if (grid[rowIndex][colIndex]) {
+        count++;
+      }
+    }
+  }
+
+  if (grid[row][col]) {
+    count--;
+  }
+  return count;
+}
+
+
+function setup() {
+  createCanvas(windowWidth, windowHeight);
+
+  let gui = new dat.GUI();
+  gui.add(o, 'size', 1, 24, 1)
+  gui.add(o, 'fps', 1, 60, 1)
+  gui.add(o, 'rows', 12, 240, 1)
+  gui.add(o, 'cols', 12, 240, 1)
+  gui.add(o, 'wrap')
+  
+  // noLoop();
+  frameRate(o.fps);
+
+  // Colors
+  fill('black')
+  noStroke();
+
+  grid = make2dArray(o.rows, o.cols);
+}
+
+function draw() {
+  frameRate(o.fps);
+  background('#fff');
+
+  // Has rows or cols changed?
+  if (grid.length !== o.rows || grid[0].length !== o.cols) {
+    grid = make2dArray(o.rows, o.cols);
+  }
+
+  // Update
+  let bufferGrid = make2dArray(o.rows, o.cols);
+  for (let row = 0; row < o.rows; row++) {
+    for (let col = 0; col < o.cols; col++) {
+      let isAlive = grid[row][col];
+      let count = getNeighborCount(row, col);
+
+      if (isAlive && count === 2 || count === 3) {
+        bufferGrid[row][col] = 1;
+      } else if (!isAlive && count === 3) {
+        bufferGrid[row][col] = 1;
+      } else {
+        bufferGrid[row][col] = 0;
+      }
+    }
+  }
+
+  grid = bufferGrid;
+
+  // Draw
+  for (let row = 0; row < o.rows; row++) {
+    for (let col = 0; col < o.cols; col++) {
+      if (grid[row][col]) {
+        rect(col * o.size, row * o.size, o.size, o.size);
+      }
+    }
+  }
+
+}
+
+
+    </script>
+  </head>
+  <body>
+  </body>
+</html>

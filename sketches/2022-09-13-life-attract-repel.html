@@ -1,0 +1,323 @@
+<!--
+# TODO
+
+DAT GUI example
+https://codepen.io/justgooddesign/pen/ngKJQx
+
+
+Docs
+- [ ] attract and repel math
+
+
+Features
+- [x] Particle controls - busted at moment
+--
+- [ ] Controls for effect radius
+- [ ] Presets
+- [ ] Button to save presets
+
+Style
+- [ ] Better colors
+
+
+Google
+Particle Life Simulation, Primordial Soup - Evolution, Conway's game of life, Cellular automata, Self organzing patterns, Ventrella's Clusters, Code Parade
+
+
+p5 Vector math
+
+
+add()
+sub()
+mult()
+mag() - length of vector
+
+
+-->
+
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1 user-scalable=0">
+    <style>
+    body {padding: 0; margin: 0; overflow: hidden; background: #999;}
+    canvas {
+      image-rendering: -moz-crisp-edges;
+      image-rendering: -webkit-crisp-edges;
+      image-rendering: pixelated;
+      image-rendering: crisp-edges;
+      transform-origin: top left;
+      transform: scale(4);
+      /*scale: 2;*/
+    }
+  </style>
+    <script src="./js/text.js"></script>
+    <script src="/node_modules/p5/lib/p5.min.js"></script>
+    <script src="/node_modules/dat.gui/build/dat.gui.min.js"></script>
+    <script>
+
+
+// let colors = ['#CF37A1', '#FBFA4D', '#363'];
+// let bgColor = '#39262E';
+let colors = ['cyan', 'magenta', 'yellow'];
+let bgColor = 'black';
+
+
+let forcesList = [];
+colors.forEach(c1 => {
+  colors.forEach(c2 => {
+    forcesList.push(`${c1}To${capitalize(c2)}`);
+  })
+});
+
+// Options
+let opts = {
+  size: 1,
+  maxVel: 1,
+  canvasWidth: 300,
+  canvasHeight: 300,
+
+  randomCounts: () => {
+    randomizeCounts();
+    gui.updateDisplay();
+  },
+  randomDists: () => {
+    randomizeDists();
+    gui.updateDisplay();
+  },
+  randomForces: () => {
+    randomizeForces();
+    gui.updateDisplay();
+  },
+  random: () => {
+    randomizeCounts();
+    randomizeDists();
+    randomizeForces();
+
+    opts.maxVel = Math.random() * 10;
+    
+    gui.updateDisplay();
+  }
+}
+
+colors.forEach(color => {
+  opts[color] = 100;
+  opts[`${color}Dist`] = 100;
+})
+
+forcesList.forEach(force => {
+  opts[force] = 0;
+})
+
+
+
+// Globals
+let particles = [];
+
+
+// let part = []; // temp, but should replace particles var
+
+/**
+ * Particle
+ * --------
+ * String color
+ * Vector pos
+ * Vector vel
+ * 
+ **/
+
+class Particle {
+  constructor(color) {    
+    this.color = color ? color : random(palette);
+    
+    this.pos = createVector(
+      random(opts.size, opts.canvasWidth - opts.size),
+      random(opts.size, opts.canvasHeight - opts.size)
+    );
+
+    this.vel = createVector(0, 0);
+  }
+
+  update() {
+    // Check boundaries
+    let half = opts.size / 2;
+
+    this.vel.limit(opts.maxVel);
+
+    let bounceAmt = 5;
+
+    if (this.pos.x - half < 0) {
+      this.vel.x = Math.abs(this.vel.x) * bounceAmt;
+    } 
+    if (this.pos.x + half > opts.canvasWidth) {
+      this.vel.x = Math.abs(this.vel.x) * bounceAmt * -1;
+    }
+    if (this.pos.y - half < 0) {
+      this.vel.y = Math.abs(this.vel.y) * bounceAmt;
+    }
+    if (this.pos.y + half > opts.canvasHeight) {
+      this.vel.y = Math.abs(this.vel.y) * bounceAmt * -1;
+    }
+
+    this.pos.add(this.vel);
+  }
+
+  draw() {
+    // Draw circle
+    fill(this.color);
+    stroke(this.color);
+    point(this.pos.x, this.pos.y);
+  }
+}
+
+
+function windowResized() {
+  resizeCanvas(opts.canvasWidth, opts.canvasHeight);
+}
+
+function applyForce(color1, color2, gravity) {
+  for (let i = 0; i < color1.length; i++) {
+    let forceV = createVector(0, 0);
+    let p1 = color1[i];
+
+    for (let j = 0; j < color2.length; j++) {
+      let p2 = color2[j];
+      
+      let dist = p1.pos.dist(p2.pos);
+      let distMax = opts[`${p1.color}Dist`];
+
+      if (dist > 0 && dist < distMax) {
+        let forceAmt = gravity * (1 / dist);
+        
+        let diffV = p5.Vector.sub(p1.pos, p2.pos);
+        diffV.mult(forceAmt);
+
+        forceV.add(diffV);
+      }
+    }
+
+    p1.vel.add(forceV);
+    p1.vel.mult(0.6);
+  }
+}
+
+let gui;
+
+
+function randomizeCounts() {
+  colors.forEach(c => {
+    opts[c] = Math.floor(Math.random() * 300);
+    console.log(c);
+  });  
+}
+
+function randomizeDists() {
+  colors.forEach(c => {
+    opts[`${c}Dist`] = Math.floor(Math.random() * (opts.canvasWidth / 2));
+  });  
+}
+
+function randomizeForces() {
+  forcesList.forEach(force => {
+    opts[force] = Math.random() * 2 - 1;
+  })
+}
+
+function setup() {
+  createCanvas(opts.canvasWidth, opts.canvasHeight);
+  // colorMode(HSB);
+
+  gui = new dat.GUI();
+  gui.add(opts, 'random');
+  gui.add(opts, 'randomCounts');
+  gui.add(opts, 'randomDists');
+  gui.add(opts, 'randomForces');
+  
+  // Particle counts and dist
+  colors.forEach(color => {
+    gui.add(opts, color, 0, 500, 1)
+    gui.add(opts, `${color}Dist`, 0, 400, 1)
+  })
+  
+  // Forces
+  forcesList.forEach(force => {
+    gui.add(opts, force, -1, 1, 0.01)
+  })
+
+
+
+  gui.add(opts, 'size', 1, 100)
+  gui.add(opts, 'maxVel', 0, 10)
+  gui.add(opts, 'canvasWidth', 48, 640)
+  gui.add(opts, 'canvasHeight', 48, 640)
+ 
+  pixelDensity(6.0);
+  noSmooth();
+  // noLoop();
+  // frameRate(6);
+
+
+  colors.forEach(color => {
+    updateParticleCount(opts[color], color);
+  })
+  
+  opts.random();
+
+  // Colors
+  noStroke();
+}
+
+function draw() {
+  resizeCanvas(opts.canvasWidth, opts.canvasHeight);
+  background(bgColor);
+  
+  colors.forEach(color => {
+    if (particles[color].length !== opts[color]) {
+      updateParticleCount(opts[color], color);
+    }
+  })
+
+  // Apply forces
+  colors.forEach(c1 => {
+    colors.forEach(c2 => {
+      applyForce(particles[c1], particles[c2], opts[`${c1}To${capitalize(c2)}`]);
+    })
+  });
+    
+  // Update (check boundary collision)
+  colors.forEach(c => {
+    let particleGroup = particles[c];
+    for (let i = 0; i < particleGroup.length; i++) {
+      particleGroup[i].update();
+    }    
+  });
+
+  colors.forEach(c => {
+    let particleGroup = particles[c];
+    for (let i = 0; i < particleGroup.length; i++) {
+      particleGroup[i].draw();
+    }    
+  });
+}
+
+
+function updateParticleCount(num, color = 'yellow') {
+  if (!particles[color]) {
+    particles[color] = [];
+  }
+
+  while (particles[color].length !== num) {
+    if (particles[color].length < num) {
+        particles[color].push(new Particle(color));  
+    } else {
+      particles[color].pop();
+    }
+  }
+}
+
+    </script>
+  </head>
+  <body>
+  </body>
+</html>

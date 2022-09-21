@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1 user-scalable=0">
+    <style> body {padding: 0; margin: 0; overflow: hidden; background: #f3f3f3;} </style>
+    <script src="/node_modules/p5/lib/p5.min.js"></script>
+    <script src="/node_modules/dat.gui/build/dat.gui.min.js"></script>
+
+    <script src="./js/console.js"></script>
+    <script src="./js/math.js"></script>
+    <script>
+
+
+/*
+  README
+  ---
+  Press Up Arrow to cycle.
+
+*/
+
+
+// Options
+let opts = {
+  bg: '#fff',
+  size: 4,
+  cols: 120,
+  rows: 180,
+}
+
+// Blocks are 8 x 4 pixel grids that define our patterns
+// xxxxxxxx
+// xoxoxoxx
+// oxoxoxox
+
+// let patterns = [
+//   '10',
+//   '01',
+//   '011',
+//   '01111',
+//   '010',
+//   '001',
+//   '0001',
+//   '000001',
+  // '001',
+  // '0001',
+  // '000001',
+  // '001',
+  // '0001',
+  // '000001',
+  // '000001',
+  // '000001',
+  // '000001',
+  // '000001',
+  // '000001',
+  // '000001',
+  // '000001',
+  // '000001',
+  // '000001',
+  // '000001',
+  // '000001',
+// ]
+
+
+let patterns = [
+  '000001',
+  '0001',
+  '001',
+  '010',
+  '01',
+  '10',
+  '110',
+  '011',
+  '01',
+  '11110',
+  '01',
+
+  '01111',
+  '01',
+
+  '1',
+  '01',
+
+  '1',
+  '01',
+
+  '01111',
+  '01',
+
+  '11110',
+  '01',
+
+  '011',
+  '01',
+
+  '110',
+  '10',
+  '01',
+  '010',
+  '001',
+  '0001',
+  '000001',
+  // '001',
+  // '0001',
+  // '000001',
+  // '001',
+  // '0001',
+  // '000001',
+  // '000001',
+  // '000001',
+  // '000001',
+  // '000001',
+  // '000001',
+  // '000001',
+  // '000001',
+  // '000001',
+  // '000001',
+  // '000001',
+  // '000001',
+]
+// let BLOCK_COLS = 8;
+// let BLOCK_ROWS = 4;
+
+let COLORS = [
+  '#000', // black
+  // '#B33', // red
+  // '#fc5', // yellow
+  // '#24c', // blue
+]
+
+// Grays
+
+// let COLORS = [
+//   '#333',
+//   '#666',
+//   '#999',
+//   '#bbb',
+//   '#eee',
+// ]
+
+
+let firstPass = true;
+let shouldUpdate = false; // Set to true when key is pressed
+
+function preload() { }
+
+// function windowResized() {
+//   resizeCanvas(opts.canvasWidth, opts.canvasHeight);
+// }
+
+
+function setup() {
+  createCanvas(opts.canvasWidth, opts.canvasHeight);
+  // colorMode(HSB);
+
+  let gui = new dat.GUI();
+  gui.addColor(opts, 'bg')
+  // gui.add(opts, 'count', 0, 4000)
+  gui.add(opts, 'size', 0, 128);
+  gui.add(opts, 'cols', 0, 400, 4)
+  gui.add(opts, 'rows', 0, 200, 4)
+
+  // noLoop();
+  // frameRate(1);
+}
+
+
+function draw() {
+  const { cols, rows, size, bg } = opts;
+
+  if (!firstPass && !keyIsDown(UP_ARROW)) return;
+
+
+  resizeCanvas(cols * size, rows * size);
+  background(bg);
+  noStroke();
+
+  // // A block represents four rows  
+  // let blocks = rows / 4;
+
+  // for (let b = 0; b < blocks; b++) {
+
+  //   // 1. Calc weight - Number from 32
+  //   let blockPixelCount = blocks - b;
+
+
+  //   // 2. Distribute weight across four rows
+  //   let blockRows = [0, 0, 0, 0];
+  //   let pixelsPlaced = 0;
+    
+  //   while (pixelsPlaced < blockPixelCount) {
+      
+  //     let placed = false;
+  //     while (!placed) {
+  //       let randIndex = Math.floor(Math.random() * 4)
+  //       if (blockRows[randIndex])
+  //     }
+  //     let randIndex = Math.floor(Math.random() * 4);
+  //     blockRows[randIndex]++;
+  //     pixelsPlaced++;
+  //   }
+
+  //   console.log(blockRows);
+  // }  
+  // 3. Render row
+
+
+  for (let row = 0; row < rows; row++) {
+    // let pattern = rand(patterns);
+    let pattern = patterns[row % patterns.length];
+    let patternLength = pattern.length;
+
+    let startIndex = Math.floor(Math.random() * patternLength);
+    // let startIndex = 0;
+
+    let color = random(COLORS);
+    fill(color);
+
+
+    for (let col = 0; col < cols; col++) {
+      let index = (startIndex + col) % patternLength;
+
+      // let color = random(COLORS);
+      // fill(color);
+      
+      if (pattern[index] === '1') {
+        rect(col * opts.size, row * opts.size, opts.size, opts.size);
+      }
+      
+    }
+
+  }
+
+
+
+
+
+  // Draw pixels
+  // for (let i = 0; i < opts.count; i++) {
+  //   let row = Math.floor(Math.random() * rows);
+  //   let col = Math.floor(Math.random() * cols);
+  //   // console.log(row, col);
+
+  //   let color = random(COLORS);
+  //   fill(color);
+
+  //   // Rect
+  //   rect(col * opts.size, row * opts.size, opts.size, opts.size);
+  // }
+
+  firstPass = false;
+  shouldUpdate = false;
+}
+    </script>
+  </head>
+  <body>
+  </body>
+</html>

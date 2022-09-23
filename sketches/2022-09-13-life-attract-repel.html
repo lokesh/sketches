@@ -1,32 +1,8 @@
 <!--
-# TODO
-
 DAT GUI example
 https://codepen.io/justgooddesign/pen/ngKJQx
 
-
-Docs
-- [ ] attract and repel math
-
-
-Features
-- [x] Particle controls - busted at moment
---
-- [ ] Controls for effect radius
-- [ ] Presets
-- [ ] Button to save presets
-
-Style
-- [ ] Better colors
-
-
-Google
-Particle Life Simulation, Primordial Soup - Evolution, Conway's game of life, Cellular automata, Self organzing patterns, Ventrella's Clusters, Code Parade
-
-
 p5 Vector math
-
-
 add()
 sub()
 mult()
@@ -41,14 +17,14 @@ mag() - length of vector
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1 user-scalable=0">
     <style>
-    body {padding: 0; margin: 0; overflow: hidden; background: #999;}
+    body {padding: 0; margin: 0; overflow: hidden; background: #ddd;}
     canvas {
       image-rendering: -moz-crisp-edges;
       image-rendering: -webkit-crisp-edges;
       image-rendering: pixelated;
       image-rendering: crisp-edges;
       transform-origin: top left;
-      transform: scale(4);
+      transform: scale(3);
       /*scale: 2;*/
     }
   </style>
@@ -57,26 +33,187 @@ mag() - length of vector
     <script src="/node_modules/dat.gui/build/dat.gui.min.js"></script>
     <script>
 
+let colors = [
+  { label: 'red', hex: '#f00', },
+  { label: 'blue', hex: '#0f0', },
+  { label: 'yellow', hex: '#ff0', },
+]
 
-// let colors = ['#CF37A1', '#FBFA4D', '#363'];
-// let bgColor = '#39262E';
-let colors = ['cyan', 'magenta', 'yellow'];
-let bgColor = 'black';
+let bgColor = '#0b0630';
 
+let presets = [
+{
+    "size": 1,
+    "maxVel": 7.345514082956592,
+    "velMult": 0.7381779625869416,
+    "canvasWidth": 300,
+    "canvasHeight": 200,
+    "bgColor": "#0b0630",
+    "presets": "",
+    "purpleLabel": "purple",
+    "purpleHex": "#6b1fb1",
+    "purpleCount": 105,
+    "purpleDist": 54,
+    "magentaLabel": "magenta",
+    "magentaHex": "#cc3495",
+    "magentaCount": 165,
+    "magentaDist": 105,
+    "beigeLabel": "beige",
+    "beigeHex": "#f8e3c4",
+    "beigeCount": 69,
+    "beigeDist": 12,
+    "purpleToPurple": -0.42006995111207956,
+    "purpleToMagenta": -0.7712923861654857,
+    "purpleToBeige": -0.1901027701389566,
+    "magentaToPurple": 0.4199366114798133,
+    "magentaToMagenta": 0.3327211076257024,
+    "magentaToBeige": -0.9349591517614506,
+    "beigeToPurple": 0.6326862445506172,
+    "beigeToMagenta": 0.5658753074473073,
+    "beigeToBeige": 0.29330581158231084
+},
+{
+    "size": 1,
+    "maxVel": 9.653886863292797,
+    "velMult": 0.5538484281697822,
+    "canvasWidth": 300,
+    "canvasHeight": 200,
+    "bgColor": '#fff',
+    "redLabel": "red",
+    "redHex": "#f00",
+    "redCount": 258,
+    "redDist": 102,
+    "blueLabel": "blue",
+    "blueHex": "#05f",
+    "blueCount": 34,
+    "blueDist": 16,
+    "blackLabel": "black",
+    "blackHex": "#000",
+    "blackCount": 169,
+    "blackDist": 19,
+    "redToRed": -0.7050480547167921,
+    "redToBlue": -0.8001830300496091,
+    "redToBlack": -0.27106943622173807,
+    "blueToRed": -0.4541006076682308,
+    "blueToBlue": -0.8691115300847434,
+    "blueToBlack": 0.02137490325820801,
+    "blackToRed": 0.2789428697749763,
+    "blackToBlue": -0.9063865738440713,
+    "blackToBlack": -0.3329339053675553,
+},
+{
+    "size": 1,
+    "maxVel": 9.766950819468985,
+    "velMult": -0.4436974045205968,
+    "canvasWidth": 300,
+    "canvasHeight": 200,
+    "bgColor": '#2176cc',
+    "redLabel": "red",
+    "redHex": "#ff7d6e",
+    "redCount": 29,
+    "redDist": 103,
+    "pinkLabel": "pink",
+    "pinkHex": "#fca6ac",
+    "pinkCount": 139,
+    "pinkDist": 6,
+    "biegeLabel": "biege",
+    "biegeHex": "#e8e7cb",
+    "biegeCount": 189,
+    "biegeDist": 111,
+    "redToRed": 0.9526241554377428,
+    "redToPink": -0.09166236145045303,
+    "redToBiege": 0.44514488128161744,
+    "pinkToRed": 0.5600651383956157,
+    "pinkToPink": 0.5028175703150151,
+    "pinkToBiege": 0.41073958901499763,
+    "biegeToRed": 0.3500790223482664,
+    "biegeToPink": -0.3030921803721709,
+    "biegeToBiege": 0.11463963551746525
+},
+{
+    "size": 1,
+    "maxVel": 5.716137468903146,
+    "velMult": -0.7781383388941254,
+    "canvasWidth": 300,
+    "canvasHeight": 200,
+    "bgColor": "#0b0630",
+    "presets": "",
+    "purpleLabel": "purple",
+    "purpleHex": "#6b1fb1",
+    "purpleCount": 140,
+    "purpleDist": 73,
+    "magentaLabel": "magenta",
+    "magentaHex": "#cc3495",
+    "magentaCount": 55,
+    "magentaDist": 87,
+    "beigeLabel": "beige",
+    "beigeHex": "#f8e3c4",
+    "beigeCount": 60,
+    "beigeDist": 138,
+    "purpleToPurple": -0.42006995111207956,
+    "purpleToMagenta": -0.7712923861654857,
+    "purpleToBeige": -0.1901027701389566,
+    "magentaToPurple": 0.4199366114798133,
+    "magentaToMagenta": 0.3327211076257024,
+    "magentaToBeige": -0.9349591517614506,
+    "beigeToPurple": 0.6326862445506172,
+    "beigeToMagenta": 0.5658753074473073,
+    "beigeToBeige": 0.29330581158231084,
+},
+{
+    "size": 1,
+    "maxVel": 6.994737246853089,
+    "velMult": -0.6125676598102174,
+    "canvasWidth": 300,
+    "canvasHeight": 200,
+    "bgColor": "#DDD3C2",
+    "presets": "4",
+    "redLabel": "red",
+    "redHex": "#a44",
+    "redCount": 190,
+    "redDist": 26,
+    "yellowLabel": "yellow",
+    "yellowHex": "#ca1",
+    "yellowCount": 179,
+    "yellowDist": 106,
+    "redToRed": 0.890148976621763,
+    "redToYellow": 0.37003452714860785,
+    "yellowToRed": -0.16395579983380282,
+    "yellowToYellow": 0.008972937139720472,
+    "orangeLabel": "orange",
+    "orangeHex": "#a62",
+    "orangeCount": 104,
+    "orangeDist": 68,
+    "orangeToOrange": 0.18225399346235216,
+    "orangeToRed": -0.6051224213462834,
+    "orangeToYellow": 0.44283106685046825,
+    "redToOrange": 0.04686428592700276,
+    "yellowToOrange": -0.1641527746610696
+}
+
+]
 
 let forcesList = [];
-colors.forEach(c1 => {
-  colors.forEach(c2 => {
-    forcesList.push(`${c1}To${capitalize(c2)}`);
-  })
-});
 
 // Options
 let opts = {
   size: 1,
   maxVel: 1,
+  velMult: 0.5,
   canvasWidth: 300,
-  canvasHeight: 300,
+  canvasHeight: 200,
+  bgColor,
+
+  presets: '',
+
+  randomAndReset: () => {
+    opts.resetPositions();
+    opts.random();
+  },
+
+  resetPositions: () => {
+    resetPositions();
+  },
 
   randomCounts: () => {
     randomizeCounts();
@@ -96,47 +233,67 @@ let opts = {
     randomizeForces();
 
     opts.maxVel = Math.random() * 10;
-    
+    opts.velMult = Math.random() * 2 - 1;
+
     gui.updateDisplay();
   }
 }
 
-colors.forEach(color => {
-  opts[color] = 100;
-  opts[`${color}Dist`] = 100;
-})
+// TODO: Clear out old color values in opts. Could denote with a character up front.
 
-forcesList.forEach(force => {
-  opts[force] = 0;
-})
+function populateOpts() {
+  colors.forEach(color => {
+    opts[`${color.label}Label`] = color.label;
+    opts[`${color.label}Hex`] = color.hex;
+    opts[`${color.label}Count`] = 100;
+    opts[`${color.label}Dist`] = 100;
+  });  
+
+  forcesList = [];
+  colors.forEach(c1 => {
+    colors.forEach(c2 => {
+      let key = `${c1.label}To${capitalize(c2.label)}`;
+      forcesList.push(key);
+      opts[key] = 0;
+    })
+  });
 
 
+}
 
+
+// -------
 // Globals
+// -------
+
 let particles = [];
+let gui; // DAT GUI
+let dgc = []; // DAT GUI controllers
 
-
-// let part = []; // temp, but should replace particles var
 
 /**
- * Particle
+ * PARTICLE CLASS
  * --------
  * String color
  * Vector pos
  * Vector vel
- * 
  **/
 
 class Particle {
-  constructor(color) {    
-    this.color = color ? color : random(palette);
-    
+  constructor(label, hex) {    
+    this.label = label;
+    this.hex = hex;;
+  
+    this.resetPosition();
+
+    this.vel = createVector(0, 0);
+  }
+
+  resetPosition() {
     this.pos = createVector(
       random(opts.size, opts.canvasWidth - opts.size),
       random(opts.size, opts.canvasHeight - opts.size)
     );
-
-    this.vel = createVector(0, 0);
   }
 
   update() {
@@ -164,9 +321,8 @@ class Particle {
   }
 
   draw() {
-    // Draw circle
-    fill(this.color);
-    stroke(this.color);
+    fill(this.hex);
+    stroke(this.hex);
     point(this.pos.x, this.pos.y);
   }
 }
@@ -175,6 +331,7 @@ class Particle {
 function windowResized() {
   resizeCanvas(opts.canvasWidth, opts.canvasHeight);
 }
+
 
 function applyForce(color1, color2, gravity) {
   for (let i = 0; i < color1.length; i++) {
@@ -185,8 +342,17 @@ function applyForce(color1, color2, gravity) {
       let p2 = color2[j];
       
       let dist = p1.pos.dist(p2.pos);
-      let distMax = opts[`${p1.color}Dist`];
+      let distMax = opts[`${p1.label}Dist`];
 
+      // Is the color2 particle in the influence radius?
+      // If so...
+      // 1. Use distance and gravity to calculate the direction
+      //    and magnitude of influece in forceAmt.
+      // 2. Calc position diff of the two particles and store
+      //    as vector.
+      // 3. Mult forceAmt vector and position vector.
+      // 4. Add this vector to forceV which holds the cumulative
+      //    change that will be applied at the end.
       if (dist > 0 && dist < distMax) {
         let forceAmt = gravity * (1 / dist);
         
@@ -196,25 +362,22 @@ function applyForce(color1, color2, gravity) {
         forceV.add(diffV);
       }
     }
-
     p1.vel.add(forceV);
-    p1.vel.mult(0.6);
+    p1.vel.mult(opts.velMult);
   }
 }
 
-let gui;
 
 
 function randomizeCounts() {
   colors.forEach(c => {
-    opts[c] = Math.floor(Math.random() * 300);
-    console.log(c);
+    opts[`${c.label}Count`] = Math.floor(Math.random() * 200);
   });  
 }
 
 function randomizeDists() {
   colors.forEach(c => {
-    opts[`${c}Dist`] = Math.floor(Math.random() * (opts.canvasWidth / 2));
+    opts[`${c.label}Dist`] = Math.floor(Math.random() * (opts.canvasWidth / 2));
   });  
 }
 
@@ -223,97 +386,152 @@ function randomizeForces() {
     opts[force] = Math.random() * 2 - 1;
   })
 }
+function resetPositions() {
+  colors.forEach(c => {
+    let particleGroup = particles[c.label];
+    for (let i = 0; i < particleGroup.length; i++) {
+      particleGroup[i].resetPosition();
+    }    
+  });
+}
 
-function setup() {
-  createCanvas(opts.canvasWidth, opts.canvasHeight);
-  // colorMode(HSB);
+
+function resetGUI() {  
+  if (gui) {
+    dgc.forEach(controller => {
+      gui.remove(controller) 
+      gui.hide(controller) 
+    });
+    dgc = [];
+    gui.destroy()
+  };
 
   gui = new dat.GUI();
-  gui.add(opts, 'random');
-  gui.add(opts, 'randomCounts');
-  gui.add(opts, 'randomDists');
-  gui.add(opts, 'randomForces');
-  
-  // Particle counts and dist
-  colors.forEach(color => {
-    gui.add(opts, color, 0, 500, 1)
-    gui.add(opts, `${color}Dist`, 0, 400, 1)
-  })
-  
-  // Forces
-  forcesList.forEach(force => {
-    gui.add(opts, force, -1, 1, 0.01)
+
+  ['randomAndReset', 'random', 'randomCounts', 'randomDists', 'randomForces', 'resetPositions'].forEach(f => {
+    gui.add(opts, f);
   })
 
+  gui.add(opts, 'presets', [...Array(presets.length).keys()] ).onChange((val) => {
+    colors = [];
 
+    let preset = presets[val];
+
+    for (const [key, value] of Object.entries(preset)) {
+      if (typeof key === 'string' && key.endsWith('Label')) {
+        let c = key.split('Label')[0];
+
+        colors.push({
+          label: preset[`${c}Label`],
+          hex: preset[`${c}Hex`],
+        })
+      }
+      opts[key] = value;
+    }
+    resetParticles(colors);
+    // populateForcesList(false);
+    resetGUI();
+  })
 
   gui.add(opts, 'size', 1, 100)
   gui.add(opts, 'maxVel', 0, 10)
+  gui.add(opts, 'velMult', -1, 1)
   gui.add(opts, 'canvasWidth', 48, 640)
   gui.add(opts, 'canvasHeight', 48, 640)
- 
+  gui.add(opts, 'bgColor', opts.bgColor);
+
+  // Particle counts and dist
+  colors.forEach(color => {
+    dgc.push(gui.add(opts, `${color.label}Label`));
+    dgc.push(gui.add(opts, `${color.label}Hex`));
+    dgc.push(gui.add(opts, `${color.label}Count`, 0, 500, 1));
+    dgc.push(gui.add(opts, `${color.label}Dist`, 0, 400, 1));
+  })
+
+  // Forces
+  forcesList.forEach(force => {
+    dgc.push((gui.add(opts, force, -1, 1, 0.01)));
+  })
+
+}
+
+function setup() {
+  createCanvas(opts.canvasWidth, opts.canvasHeight);
+
   pixelDensity(6.0);
   noSmooth();
+  noStroke();  
   // noLoop();
   // frameRate(6);
-
+  
+  populateOpts();
+  resetGUI();
 
   colors.forEach(color => {
-    updateParticleCount(opts[color], color);
+    updateParticleCount(opts[`${color.label}Count`], color);
   })
   
   opts.random();
-
-  // Colors
-  noStroke();
 }
 
 function draw() {
   resizeCanvas(opts.canvasWidth, opts.canvasHeight);
-  background(bgColor);
+  background(opts.bgColor);  
   
+
   colors.forEach(color => {
-    if (particles[color].length !== opts[color]) {
-      updateParticleCount(opts[color], color);
+    if (particles[color.label].length !== opts[`${color.label}Count`]) {
+      updateParticleCount(opts[`${color.label}Count`], color);
     }
   })
 
   // Apply forces
   colors.forEach(c1 => {
     colors.forEach(c2 => {
-      applyForce(particles[c1], particles[c2], opts[`${c1}To${capitalize(c2)}`]);
+      applyForce(particles[c1.label], particles[c2.label], opts[`${c1.label}To${capitalize(c2.label)}`]);
     })
   });
     
   // Update (check boundary collision)
   colors.forEach(c => {
-    let particleGroup = particles[c];
+    let particleGroup = particles[c.label];
     for (let i = 0; i < particleGroup.length; i++) {
       particleGroup[i].update();
     }    
   });
 
   colors.forEach(c => {
-    let particleGroup = particles[c];
+    let particleGroup = particles[c.label];
     for (let i = 0; i < particleGroup.length; i++) {
       particleGroup[i].draw();
     }    
   });
 }
 
+function keyPressed() {
+  console.log('keypress:', opts);
+}
 
-function updateParticleCount(num, color = 'yellow') {
-  if (!particles[color]) {
-    particles[color] = [];
+function updateParticleCount(num, color) {
+  let { label, hex } = color;
+  if (!particles[label]) {
+    particles[label] = [];
   }
 
-  while (particles[color].length !== num) {
-    if (particles[color].length < num) {
-        particles[color].push(new Particle(color));  
+  while (particles[label].length !== num) {
+    if (particles[label].length < num) {
+        particles[label].push(new Particle(label, hex));  
     } else {
-      particles[color].pop();
+      particles[label].pop();
     }
   }
+}
+
+function resetParticles(colors) {
+  particles = {};
+  colors.forEach(c => {
+    particles[c.label] = [];
+  })
 }
 
     </script>

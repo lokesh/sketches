@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1 user-scalable=0">
+    <style>
+    body {padding: 0; margin: 0; overflow: hidden; background: #999;}
+    canvas {
+      image-rendering: -moz-crisp-edges;
+      image-rendering: -webkit-crisp-edges;
+      image-rendering: pixelated;
+      image-rendering: crisp-edges;
+      transform-origin: top left;
+      transform: scale(2);
+      /*scale: 2;*/
+    } 
+  </style>
+    <script src="./utils/grid.js"></script>
+    <script src="/node_modules/p5/lib/p5.min.js"></script>
+    <script src="/node_modules/dat.gui/build/dat.gui.min.js"></script>
+    <script>
+
+
+// Options
+let o = {
+  diffusionA: 1,
+  diffusionB: 0.5,
+  feed: 0.055,
+  kill: 0.062,
+  fps: 60,
+  rows: 200,
+  cols: 200,
+}
+
+
+/*
+function draw() {
+  frameRate(o.fps);
+  background('#fff');
+
+
+  for (let row = 1; row < o.rows - 1; row++) {
+    for (let col = 1; col < o.cols - 1; col++) {
+     
+      // next[row][col] = grid[row][col];
+      
+      // if (next[row][col].a !== 0) {
+      //   console.log(row, col);
+      // }
+      
+      let a = grid[row][col].a;
+      let b = grid[row][col].b;
+      
+      next[row][col].a = a
+        + (o.diffusionA * laplace(row, col, 'a'))
+        - (a * b * b)
+        + (o.feed * (1 - a));
+
+      next[row][col].b = b
+        + (o.diffusionB * laplace(row, col, 'b'))
+        + (a * b * b)
+        - ((o.kill + o.feed) * b);
+
+      next[row][col].a = constrain(next[row][col].a, 0, 1);
+      next[row][col].b = constrain(next[row][col].b, 0, 1);
+    }
+  }
+
+  // Draw
+  for (let row = 0; row < o.rows; row++) {
+    for (let col = 0; col < o.cols; col++) {
+        // fill(frameCount % 255, frameCount % 255, frameCount % 255);
+        // console.log(grid[row][col].b);
+        fill(255, 255, next[row][col].a * 255);
+        rect(col * o.size, row * o.size, o.size, o.size);
+    }
+  }
+
+  grid = next;
+  next = make2dArray(o.rows, o.cols);
+*/
+
+
+let grid = [];
+let next = [];
+
+function setup() {
+  createCanvas(o.cols, o.rows);
+  pixelDensity(1);
+
+  frameRate(o.fps);
+
+  let gui = new dat.GUI();
+  gui.add(o, 'diffusionA', -1, 2)
+  gui.add(o, 'diffusionB', -1, 2)
+  gui.add(o, 'feed', 0, 1)
+  gui.add(o, 'kill', 0, 0.1)
+
+  gui.add(o, 'fps', 1, 60, 1)
+  gui.add(o, 'rows', 12, 240, 1)
+  gui.add(o, 'cols', 12, 240, 1)
+
+  for(let x = 0; x < width; x++){
+    grid[x] = [];
+    next[x] = [];
+    for(let y = 0; y < height; y++){
+      grid[x][y] = { a: 1 , b: 0};
+      next[x][y] = { a: 1 , b: 0};
+    }
+  }
+
+  let sizX = 20;
+  let centX = floor(random(o.cols));
+
+  let sizY = 20;
+  let centY = floor(random(o.rows));
+
+  for(let i = centX; i < (centX + sizX); i++){
+    for(let j = centY; j < (centY + sizY); j++){
+      grid[i][j].a = 0.1;
+      grid[i][j].b = 1;
+    }
+  }
+
+}
+
+function draw(){
+  background(52);
+  resizeCanvas(o.cols, o.rows);
+  frameRate(o.fps);
+
+  for(let x = 1; x < width - 1; x++){
+    for(let y = 1; y < height - 1; y++){
+      let pix = (x + y * width) * 4;
+      let a = grid[x][y].a;
+      let b = grid[x][y].b;
+      next[x][y].a = a + 
+              (o.diffusionA * laplace(x, y, "a")) - 
+              (a * b * b) + 
+              (o.feed * (1 - a));
+      next[x][y].b = b + 
+              (o.diffusionB * laplace(x, y, "b")) + 
+              (a * b * b) - 
+              ((o.kill + o.feed) * b);
+
+      next[x][y].a = constrain(next[x][y].a, 0, 1);
+      next[x][y].b = constrain(next[x][y].b, 0, 1);
+    }
+  }
+
+  loadPixels();
+
+  for(let x = 0; x < width; x++){
+    for(let y = 0; y < height; y++){
+      let pix = (x + y * width) * 4;
+      let a = next[x][y].a;
+      let b = next[x][y].b;
+      let c = floor((a-b)*255);
+      c = constrain(c, 0, 255);
+      pixels[pix + 0] = c;
+      pixels[pix + 1] = c;
+      pixels[pix + 2] = c;
+      pixels[pix + 3] = 255;
+    }
+  }
+
+  updatePixels();
+
+  swap();
+
+}
+
+function swap(){
+  let tmp = grid;
+  grid = next;
+  next = tmp;
+}
+
+function laplace(x, y, ab){
+/*
+┌────┬────┬────┐
+│0.05│0.20│0.05│
+├────┼────┼────┤
+│0.20│-1.0│0.20│
+├────┼────┼────┤
+│0.05│0.20│0.05│
+└────┴────┴────┘
+  */
+
+  let sum = 0;
+
+  sum += grid[x][y][ab] * -1;
+  sum += grid[x-1][y][ab] * 0.2;
+  sum += grid[x+1][y][ab] * 0.2;
+  sum += grid[x][y+1][ab] * 0.2;
+  sum += grid[x][y-1][ab] * 0.2;
+  sum += grid[x-1][y-1][ab] * 0.05; 
+  sum += grid[x-1][y+1][ab] * 0.05;
+  sum += grid[x+1][y-1][ab] * 0.05;
+  sum += grid[x+1][y+1][ab] * 0.05; 
+
+return sum;
+}
+
+
+
+    </script>
+  </head>
+  <body>
+  </body>
+</html>

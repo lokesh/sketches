@@ -8,8 +8,30 @@
 `npm i -g live-server`
 
 
-## Sketches
+## P5
 
+color values in canvas = 1 dimensional array, R G B A
+
+## Ideas
+
+
+TODO: One dimensional automata? Apply to image? Use grid?
+
+
+## Sketches
 
 **2022-09-13 Life Attract Reply**
 Creating organic, unpredictable moment with simple attract and repel code. The key is to have at least three distinct element types interacting.
+
+**2022-09-23 Reaction-Diffusion**
+Two chemicals interacting, we'll use 'food' and 'bunnies'.
+
+Food 
+1. Diffuse
+2. Kill - Bunnies eat feed
+3. Feed - Add more feed at feed rate
+
+Bunny
+1. Diffuse
+2. React - Bunnies eat food and grow more bunnies
+3. Kill - Use kill rate

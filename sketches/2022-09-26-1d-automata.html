@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1 user-scalable=0">
+    <style> body {padding: 0; margin: 0; overflow: hidden; background: #f3f3f3;} </style>
+    <script src="/node_modules/p5/lib/p5.min.js"></script>
+    <script src="/node_modules/dat.gui/build/dat.gui.min.js"></script>
+
+    <script src="./utils/console.js"></script>
+    <script src="./utils/math.js"></script>
+    <script>
+
+// Options
+let o = {
+  bg: '#0b0630',
+  size: 8,
+  cols: 60,
+  rows: 60,
+  fps: 8,
+}
+
+// let COLORS = [
+//   '#000', // black
+//   '#B33', // red
+//   '#fc5', // yellow
+//   '#24c', // blue,
+//   '#fff',
+// ]
+
+// Grays
+let COLORS = [
+  '#333',
+  '#666',
+  '#999',
+  '#bbb',
+  '#eee',
+]
+
+// let COLORS = [
+//   '#6b1fb1', // purple
+//   '#cc3495', // magenta
+//   '#f8e3c4', // beige
+// ]
+
+// Saturated
+// let COLORS = [
+//   '#ff0',
+//   '#f0f',
+//   '#0ff',
+//   '#fff',
+// ]
+
+/// CYMK lite
+// let COLORS = [
+  // '#e62e6b',
+  // '#2ec7e6',
+  // '#ffe666',
+// ]
+
+
+/// Gameboy
+// let COLORS = [
+//   '#1e606e',
+//   '#5ab9a8',
+//   '#c4f0c2',
+// ]
+
+/*
+Ruleset is stored in an 8 slot array,related to these configs:
+000 001 010 011 100 101 110 111
+
+parseInt('111', 2)
+*/
+
+let ruleset = [];
+
+// [0, 1, 0, 0, 1, 0, 0, 0]
+// [1, 1, 1, 1, 1, 0, 1, 0]
+function randomRules () {
+  for (let i = 0; i < 8; i++) {
+    ruleset[i] = random([0, 1]);
+  }
+  log('randomRules()')
+  log('000 001 010 011 100 101 110 111');
+  log(ruleset);
+}
+
+function randomizeGrid(g) {
+  for (let row = 0; row < o.rows; row++) {
+    g[row] = [];
+    for (let col = 0; col < o.cols; col++) {
+      g[row][col] = random([0, 1]);
+    }
+  }
+  log('randomizeGrid()');
+}
+
+function seedFirstRow(g) {
+  for (let col = 0; col < o.cols; col++) {
+    g[0][col] = random([0, 1]);
+  }
+}
+
+
+let grid = [];
+let next = [];
+
+let firstPass = true;
+
+function preload() { }
+
+function setup() {
+  createCanvas(o.cols * o.size, o.rows * o.size);
+
+  let gui = new dat.GUI();
+  gui.addColor(o, 'bg')
+  gui.add(o, 'size', 0, 128);
+  gui.add(o, 'cols', 0, 400, 4)
+  gui.add(o, 'rows', 0, 200, 4)
+  gui.add(o, 'fps', 0, 60, 1)
+
+  // noLoop();
+  frameRate(o.fps);
+
+  // Seed grid
+  for (let row = 0; row < o.rows; row++) {
+    grid[row] = [];
+    next[row] = [];
+    for (let col = 0; col < o.cols; col++) {
+      grid[row][col] = 0;
+      next[row][col] = 0;
+    }
+  }
+  
+  randomizeGrid(grid);
+  randomRules();
+
+  noStroke();
+}
+
+
+function draw() {
+  const { cols, rows, size, bg } = o;
+  
+  frameRate(o.fps);
+  resizeCanvas(o.cols * o.size, o.rows * o.size);
+  background(o.bg);
+
+  // UPDATE  
+  // Row 1
+  seedFirstRow(grid);
+
+  // Rows 1>
+  for (let row = 1; row < rows; row++) {
+    for (let col = 0; col < cols; col++) {
+      let str = getNeighbor(row - 1 , col);
+      let ruleIndex = parseInt(str, 2)
+      let newVal = ruleset[ruleIndex];
+      next[row][col] = newVal;
+    }
+  }
+
+  // DRAW
+  for (let row = 0; row < rows; row++) {
+    // let color = random(COLORS);
+
+    let colorIndex = (Math.abs(frameCount - row)) % COLORS.length;
+    // log('row', row);
+    // log('frameCount', frameCount);
+    // log(colorIndex);
+    let color = COLORS[colorIndex];
+    fill(color);
+    for (let col = 0; col < cols; col++) {
+      if (next[row][col]) {
+        rect(col * o.size, row * o.size, o.size, o.size);
+      }
+    }
+  }
+
+
+  // Swap
+  let tmp = grid;
+  grid = next;
+  next = tmp;
+}
+
+function keyPressed(key) {
+  if (key.code === 'ArrowUp') {
+    randomRules();
+  } else if (key.code === 'ArrowDown') {
+    randomizeGrid(grid);
+  }
+}
+
+function getNeighbor(row, col) {
+  let n = '';
+  for (let i = -1; i < 2; i++) {
+    let colIndex = (col + i + o.cols) % o.cols; 
+    let rowIndex = row;
+    n += grid[rowIndex][colIndex];
+  }
+
+  return n;
+}
+
+
+
+    </script>
+  </head>
+  <body>
+  </body>
+</html>

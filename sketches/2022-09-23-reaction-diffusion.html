@@ -11,8 +11,7 @@
       image-rendering: pixelated;
       image-rendering: crisp-edges;
       transform-origin: top left;
-      transform: scale(2);
-      /*scale: 2;*/
+      transform: scale(4);
     } 
   </style>
     <script src="./utils/grid.js"></script>
@@ -27,59 +26,17 @@ let o = {
   diffusionB: 0.5,
   feed: 0.055,
   kill: 0.062,
+
+  // diffusionA: -0.5,
+  // diffusionB: 0.7,
+  // feed: 0.055,
+  // kill: 0.062,
+  
   fps: 60,
   rows: 200,
   cols: 200,
+  size: 2,
 }
-
-
-/*
-function draw() {
-  frameRate(o.fps);
-  background('#fff');
-
-
-  for (let row = 1; row < o.rows - 1; row++) {
-    for (let col = 1; col < o.cols - 1; col++) {
-     
-      // next[row][col] = grid[row][col];
-      
-      // if (next[row][col].a !== 0) {
-      //   console.log(row, col);
-      // }
-      
-      let a = grid[row][col].a;
-      let b = grid[row][col].b;
-      
-      next[row][col].a = a
-        + (o.diffusionA * laplace(row, col, 'a'))
-        - (a * b * b)
-        + (o.feed * (1 - a));
-
-      next[row][col].b = b
-        + (o.diffusionB * laplace(row, col, 'b'))
-        + (a * b * b)
-        - ((o.kill + o.feed) * b);
-
-      next[row][col].a = constrain(next[row][col].a, 0, 1);
-      next[row][col].b = constrain(next[row][col].b, 0, 1);
-    }
-  }
-
-  // Draw
-  for (let row = 0; row < o.rows; row++) {
-    for (let col = 0; col < o.cols; col++) {
-        // fill(frameCount % 255, frameCount % 255, frameCount % 255);
-        // console.log(grid[row][col].b);
-        fill(255, 255, next[row][col].a * 255);
-        rect(col * o.size, row * o.size, o.size, o.size);
-    }
-  }
-
-  grid = next;
-  next = make2dArray(o.rows, o.cols);
-*/
-
 
 let grid = [];
 let next = [];
@@ -134,12 +91,13 @@ function draw(){
       let pix = (x + y * width) * 4;
       let a = grid[x][y].a;
       let b = grid[x][y].b;
+      
       next[x][y].a = a + 
-              (o.diffusionA * laplace(x, y, "a")) - 
+              (o.diffusionA * laplace(x, y, 'a')) - 
               (a * b * b) + 
               (o.feed * (1 - a));
       next[x][y].b = b + 
-              (o.diffusionB * laplace(x, y, "b")) + 
+              (o.diffusionB * laplace(x, y, 'b')) + 
               (a * b * b) - 
               ((o.kill + o.feed) * b);
 
@@ -157,9 +115,16 @@ function draw(){
       let b = next[x][y].b;
       let c = floor((a-b)*255);
       c = constrain(c, 0, 255);
-      pixels[pix + 0] = c;
-      pixels[pix + 1] = c;
-      pixels[pix + 2] = c;
+      
+      let aColor = floor(a * 255);
+      constrain(aColor, 0, 255);
+      let bColor = floor(b * 255);
+      constrain(bColor, 0, 255);
+
+
+      pixels[pix + 0] = bColor;
+      pixels[pix + 1] = 255-aColor;
+      pixels[pix + 2] = bColor;
       pixels[pix + 3] = 255;
     }
   }

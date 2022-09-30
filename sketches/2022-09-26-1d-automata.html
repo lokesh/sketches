@@ -20,6 +20,9 @@ let o = {
   fps: 8,
 }
 
+// Add more zeroes in array to seed with less colored squares
+let SEED_ARRAY = [0, 1];
+
 // let COLORS = [
 //   '#000', // black
 //   '#B33', // red
@@ -90,7 +93,7 @@ function randomizeGrid(g) {
   for (let row = 0; row < o.rows; row++) {
     g[row] = [];
     for (let col = 0; col < o.cols; col++) {
-      g[row][col] = random([0, 1]);
+      g[row][col] = random(SEED_ARRAY);
     }
   }
   log('randomizeGrid()');
@@ -98,7 +101,7 @@ function randomizeGrid(g) {
 
 function seedFirstRow(g) {
   for (let col = 0; col < o.cols; col++) {
-    g[0][col] = random([0, 1]);
+    g[0][col] = random(SEED_ARRAY);
   }
 }
 

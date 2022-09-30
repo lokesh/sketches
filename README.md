@@ -48,3 +48,7 @@ Ruleset is stored in an 8 slot array,related to these configs:
 000 001 010 011 100 101 110 111
 
 0 1 0 1 1 0 1 0
+
+**2022-09-29 Cyclical cellular automata**
+
+..

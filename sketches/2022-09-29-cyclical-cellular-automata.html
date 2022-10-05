@@ -29,12 +29,12 @@
 // Options
 let o = {
   size: 4,
-  fps: 1,
-  rows: 4,
-  cols: 4,
+  fps: 60,
+  rows: 40,
+  cols: 40,
   wrap: true,
   
-  range: 1,
+  range: 3,
   threshold: 3,
   states: 4,
   mooreNeighborhood: false,
@@ -70,8 +70,7 @@ const VON_NEUMANN_NEIGHBORHOOD = 'von neumann';
 // Moore
 function getNeighbors(row, col, range, neighborhood) {
   let neighbors = [];
-  // console.log(o.mooreNeighborhood, neighborhood);
-  // console.log(neighborhood === MOORE_NEIGHBORHOOD);
+
   if (neighborhood === MOORE_NEIGHBORHOOD) {
     for (let i = range * -1; i <= range; i++) {
       let rowIndex = (row + i);
@@ -94,7 +93,6 @@ function getNeighbors(row, col, range, neighborhood) {
       }
     }
   } else {
-    // console.log('WORKING');
     for (let i = range * -1; i <= range; i++) {
       if (i === 0) continue;
       let rowIndex = (row + i);
@@ -130,7 +128,7 @@ function setup() {
   gui.add(o, 'wrap')
   gui.add(o, 'range', 1, 10, 1)
   gui.add(o, 'threshold', 0, 8, 1)
-  gui.add(o, 'states', 1, 12, 1)
+  gui.add(o, 'states', 1, 64, 1)
   gui.add(o, 'mooreNeighborhood');
 
   // noLoop();

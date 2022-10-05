@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1 user-scalable=0">
+    <style>
+    body {padding: 0; margin: 0; overflow: hidden; background: #999;}
+    canvas {
+      image-rendering: -moz-crisp-edges;
+      image-rendering: -webkit-crisp-edges;
+      image-rendering: pixelated;
+      image-rendering: crisp-edges;
+      transform-origin: top left;
+      /*transform: scale(2);*/
+      /*scale: 2;*/
+    }
+  </style>
+    <script src="/node_modules/p5/lib/p5.min.js"></script>
+    <script src="/node_modules/dat.gui/build/dat.gui.min.js"></script>
+    <script>
+
+
+// Options
+let o = {
+  size: 12,
+  fps: 60,
+  rows: 60,
+  cols: 100,
+  wrap: true,
+  
+  range: 2,
+  threshold: 5,
+  mooreNeighborhood: true,
+}
+
+Class Particle {
+  constructor() {
+    this.type = 0;
+    // this.color = 0;
+    this.hasBeenUpdated = false;
+    this.lifeTime = 0;
+    this.velocity = 0;
+  }
+
+  update() {
+    
+  }
+}
+
+
+let grid;
+
+function make2dArray(rows, cols) {
+  let arr = Array(rows).fill(0).map(x => Array(cols).fill(0));
+  for (let row = 0; row < o.rows; row++) {
+    for (let col = 0; col < o.cols; col++) {
+      arr[row][col] = floor(random(2));  
+    }
+  }
+  return arr; 
+}
+
+function randomizeGrid(g) {
+  for (let row = 0; row < o.rows; row++) {
+    g[row] = [];
+    for (let col = 0; col < o.cols; col++) {
+      g[row][col] = floor(random(2));
+    }
+  }
+  log('randomizeGrid()');
+}
+
+
+Array.prototype.clone = function() {
+  var arr = this.slice(0);
+  for( var i = 0; i < this.length; i++ ) {
+    if( this[i].clone ) {
+      //recursion
+      arr[i] = this[i].clone();
+    }
+  }
+  return arr;
+}
+
+function setup() {
+  createCanvas(windowWidth, windowHeight);
+
+  let gui = new dat.GUI();
+  gui.add(o, 'size', 1, 24, 1)
+  gui.add(o, 'fps', 1, 60, 1)
+  gui.add(o, 'rows', 12, 240, 1)
+  gui.add(o, 'cols', 12, 240, 1)
+
+  // noLoop();
+  frameRate(o.fps);
+
+  // Colors
+  fill('black')
+  noStroke();
+
+  grid = make2dArray(o.rows, o.cols);
+}
+
+function countInArray(arr, match) {
+  let count = 0;
+  arr.forEach(i => {
+    if (i === match) {
+      count++;
+    }
+  })
+  return count;
+}
+
+const BOTTOM = 'bottom';
+const BOTTOM_LEFT = 'bottomLeft';
+const BOTTOM_RIGHT = 'bottomRight';
+const LEFT = 'left';
+const RIGHT = 'right';
+
+function getNeighbor(grid, row, col, side) {
+  // At bottom
+  if ((side === BOTTOM || side === BOTTOM_LEFT || side === BOTTOM_RIGHT)
+    && (row >= o.rows - 1)) {
+    return false;
+  }
+
+  // On left edge
+  if ((side === LEFT || side === BOTTOM_LEFT)
+    && (col === 0)) {
+    return false;
+  }
+
+  // On right edge
+  if ((side === RIGHT || side === BOTTOM_RIGHT)
+    && (col === o.cols - 1)) {
+    return false;
+  }
+
+  switch (side) {
+    case BOTTOM:
+      return grid[row + 1][col];
+      break;
+    case BOTTOM_LEFT:
+      return grid[row + 1][col - 1];
+      break;
+    case BOTTOM_RIGHT:
+      return grid[row + 1][col + 1];
+      break;
+    case LEFT:
+      return grid[row][col - 1];
+      break;
+    case RIGHT:
+      return grid[row][col + 1];
+      break;
+  }
+}
+
+function draw() {
+  frameRate(o.fps);
+  background('#000');
+
+  // Has rows or cols changed?
+  if (grid.length !== o.rows || grid[0].length !== o.cols) {
+    grid = make2dArray(o.rows, o.cols);
+  }
+
+  // ------
+  // Update
+  // ------
+
+  /*
+Types:
+0 - empty
+1 - sand
+2 - water
+
+Mouse press to add sand or water
+
+Water - allow horizontal movement
+*/
+
+  // TODO: dupe array issue, diff arrays?
+  // TODO: remove extra clone calls
+
+  // let bufferGrid = grid.clone();
+  let bufferGrid = grid;
+  
+  // for (let row = 0; row < o.rows; row++) {
+  for (let row = o.rows - 1; row >= 0; row--) {
+    for (let col = 0; col < o.cols; col++) {
+      
+      let val = grid[row][col];
+
+      if (val === 1) { // Sand
+        if (getNeighbor(bufferGrid, row, col, BOTTOM) === 0) {
+          bufferGrid[row][col] = 0;
+          bufferGrid[row + 1][col] = 1;
+        } else if (getNeighbor(bufferGrid, row, col, BOTTOM_LEFT) === 0) {
+          bufferGrid[row][col] = 0;
+          bufferGrid[row + 1][col - 1] = 1;
+        } else if (getNeighbor(bufferGrid, row, col, BOTTOM_RIGHT) === 0) { 
+          bufferGrid[row][col] = 0;
+          bufferGrid[row + 1][col + 1] = 1;
+        }
+      } else if (val === 2) { // Water
+        if (getNeighbor(bufferGrid, row, col, BOTTOM) === 0) {
+          bufferGrid[row][col] = 0;
+          bufferGrid[row + 1][col] = 2;
+        } else if (getNeighbor(bufferGrid, row, col, BOTTOM_LEFT) === 0) {
+          bufferGrid[row][col] = 0;
+          bufferGrid[row + 1][col - 1] = 2;
+        } else if (getNeighbor(bufferGrid, row, col, BOTTOM_RIGHT) === 0) { 
+          bufferGrid[row][col] = 0;
+          bufferGrid[row + 1][col + 1] = 2;
+        } else if (getNeighbor(bufferGrid, row, col, LEFT) === 0) { 
+          bufferGrid[row][col] = 0;
+          bufferGrid[row][col - 1] = 2;
+        } else if (getNeighbor(bufferGrid, row, col, RIGHT) === 0) { 
+          bufferGrid[row][col] = 0;
+          bufferGrid[row][col + 1] = 2;
+        }
+      }
+      
+      // let neighbors = getNeighbors(
+      //   row,
+      //   col,
+      //   o.range,
+      //   o.mooreNeighborhood ? MOORE_NEIGHBORHOOD : VON_NEUMANN_NEIGHBORHOOD
+      // );
+
+      // let count = countInArray(neighbors, valPlusOne);
+
+      // if (count >= o.threshold) {
+      //   bufferGrid[row][col] = valPlusOne;
+      // } else {
+      //   bufferGrid[row][col] = val;
+      // }
+    }
+  }
+
+  grid = bufferGrid;
+
+  // Draw
+  for (let row = 0; row < o.rows; row++) {
+    for (let col = 0; col < o.cols; col++) {
+      if (grid[row][col]) {
+        let val = grid[row][col];
+        let rgb = val * 50;
+        
+        fill('#000');
+        if (val === 1) {
+          fill('#f8e3c4');
+        } else if (val === 2) {
+          fill('#249');
+        }
+        rect(col * o.size, row * o.size, o.size, o.size);
+      }
+    }
+  }
+}
+
+let isShiftPressed = false;
+let isMousePressed = false;
+
+function keyPressed() {
+  if (keyCode === UP_ARROW) {
+    randomizeGrid(grid);
+  } else if (keyCode === SHIFT) {
+    isShiftPressed = true;
+  }
+}
+
+function keyReleased() {
+  if (keyCode === SHIFT) {
+    isShiftPressed = false;
+  }
+}
+
+function mouseClicked() {
+  let row = floor(mouseY / o.size);
+  let col = floor(mouseX / o.size);
+  grid[row][col] = isShiftPressed ? 1 : 2;  
+}
+
+function mouseDragged() {
+  let row = floor(mouseY / o.size);
+  let col = floor(mouseX / o.size);
+  grid[row][col] = isShiftPressed ? 1 : 2;
+}
+
+    </script>
+  </head>
+  <body>
+  </body>
+</html>

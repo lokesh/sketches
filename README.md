@@ -1,3 +1,55 @@
+## Thoughts
+
+Reminder:
+1. I'll get it wrong the first two times, so move fast, try stuff.
+2. Prioritize readibility. This project will have a long life.
+
+**Big picture**
+- What does it look like when it's all done?
+- What does it feel like?
+- Who is looking at it?
+- What does it sound like?
+- Where is it?
+
+**Theme**
+- Can we denote each effect, transition, etc. with different characterstics: intensity, chaoticness, density?
+- Can we coreograph or have a UI that lets us controls the flow at higher levels of abstraction?
+
+**Code org**
+- New Github project?
+- Private?
+
+**Grid data**
+- Can it change?
+- Are there multiple grids? or just main and buffer?
+
+**Schema**
+- type
+- color
+- lifetime
+- id
+- velocity
+- color
+- hasBeenUpdated
+- prevLocation(s)
+- mass
+
+**Saving and browsing presets**
+- A place to browse visuals.
+
+**Transitions**
+- Animating between states?
+- Wipes?
+
+**Interface**
+- Keep it visible? Show the magic?
+
+**Music**
+- React to music?
+- Make music?
+
+
+
 ## Dev
 
 -   Size as multiples of 320. Default to 640 x 640.
@@ -51,4 +103,12 @@ Ruleset is stored in an 8 slot array,related to these configs:
 
 **2022-09-29 Cyclical cellular automata**
 
-..
+Some fun presets:
+
+range, threshold, states, 'hood'
+- Spirals: 3, 3, 4, von neuman 
+- Viral checkers: 1, 2, 7, von neuman
+- Spiral wipes: 2, 5, 5, moore
+
+
+**2022-09-30 Sand simulation**

@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1 user-scalable=0">
+    <style>
+    body {padding: 0; margin: 0; overflow: hidden; background: #999;}
+    canvas {
+      image-rendering: -moz-crisp-edges;
+      image-rendering: -webkit-crisp-edges;
+      image-rendering: pixelated;
+      image-rendering: crisp-edges;
+      transform-origin: top left;
+      transform: scale(2);
+      /*scale: 2;*/
+    }
+  </style>
+    <script src="/node_modules/p5/lib/p5.min.js"></script>
+    <script src="/node_modules/dat.gui/build/dat.gui.min.js"></script>
+    <script>
+
+/*
+1. range - how far do i look?
+2. threshold - how many (self + 1) states surround me?
+3. states - what is the max integer that a cell can be?
+3. neighborhood - Moore or Von Neumann (cross)?
+*/
+
+// Options
+let o = {
+  size: 4,
+  fps: 60,
+  rows: 40,
+  cols: 40,
+  wrap: true,
+  
+  range: 3,
+  threshold: 3,
+  states: 2,
+  mooreNeighborhood: false,
+}
+
+
+let grid;
+
+function make2dArray(rows, cols) {
+  let arr = Array(rows).fill(0).map(x => Array(cols).fill(0));
+  for (let row = 0; row < o.rows; row++) {
+    for (let col = 0; col < o.cols; col++) {
+      arr[row][col] = 0;  
+    }
+  }
+  return arr; 
+}
+
+function randomizeGrid(g) {
+  for (let row = 0; row < o.rows; row++) {
+    g[row] = [];
+    for (let col = 0; col < o.cols; col++) {
+      g[row][col] = floor(random(o.states));
+    }
+  }
+  log('randomizeGrid()');
+}
+
+
+const MOORE_NEIGHBORHOOD = 'moore';
+const VON_NEUMANN_NEIGHBORHOOD = 'von neumann';
+
+// Moore
+function getNeighbors(row, col, range, neighborhood) {
+  let neighbors = [];
+
+  if (neighborhood === MOORE_NEIGHBORHOOD) {
+    for (let i = range * -1; i <= range; i++) {
+      let rowIndex = (row + i);
+
+      for (let j = range * -1; j <= range; j++) {
+        if (i === 0 && j === 0) continue;
+
+        let colIndex = (col + j);  
+
+        if (o.wrap) {
+          rowIndex = (rowIndex + o.rows) % o.rows; 
+          colIndex = (colIndex + o.cols) % o.cols;
+        }
+
+        if (rowIndex < 0 || rowIndex >= o.rows
+          || colIndex < 0 || colIndex >= o.cols){
+          continue;
+        }      
+        neighbors.push(grid[rowIndex][colIndex]);
+      }
+    }
+  } else {
+    for (let i = range * -1; i <= range; i++) {
+      if (i === 0) continue;
+      let rowIndex = (row + i);
+      let colIndex = (col + i);
+
+      if (o.wrap) {
+        rowIndex = (rowIndex + o.rows) % o.rows; 
+        colIndex = (colIndex + o.cols) % o.cols; 
+      }
+
+      if (rowIndex >= 0 && rowIndex < o.rows) {
+        neighbors.push(grid[rowIndex][col]);
+      }
+      if (colIndex >= 0 && colIndex < o.cols) {
+        neighbors.push(grid[row][colIndex]);
+      }
+    }
+    // console.log(neighbors.length);
+  }
+
+
+  return neighbors;
+}
+
+function setup() {
+  // createCanvas(windowWidth, windowHeight);
+  resizeCanvas(o.cols * o.size, o.rows * o.size);
+
+  let gui = new dat.GUI();
+  gui.add(o, 'size', 1, 24, 1)
+  gui.add(o, 'fps', 1, 60, 1)
+  gui.add(o, 'rows', 12, 240, 1)
+  gui.add(o, 'cols', 12, 240, 1)
+  gui.add(o, 'wrap')
+  gui.add(o, 'range', 1, 10, 1)
+  gui.add(o, 'threshold', 0, 8, 1)
+  gui.add(o, 'states', 1, 64, 1)
+  gui.add(o, 'mooreNeighborhood');
+
+  // noLoop();
+  frameRate(o.fps);
+
+  // Colors
+  fill('black')
+  noStroke();
+
+  grid = make2dArray(o.rows, o.cols);
+}
+
+function countInArray(arr, match) {
+  let count = 0;
+  arr.forEach(i => {
+    if (i === match) {
+      count++;
+    }
+  })
+  return count;
+}
+
+function sumOfArray(arr) {
+  let sum = 0;
+  arr.forEach(i => {
+    sum += i;
+  })
+  return sum;
+}
+
+
+function draw() {
+  frameRate(o.fps);
+  background('#eee');
+
+  // Has rows or cols changed?
+  if (grid.length !== o.rows || grid[0].length !== o.cols) {
+    grid = make2dArray(o.rows, o.cols);
+  }
+
+  // Update
+  let bufferGrid = make2dArray(o.rows, o.cols);
+  for (let row = 0; row < o.rows; row++) {
+    for (let col = 0; col < o.cols; col++) {
+      let val = grid[row][col];
+
+      // If the pixel is ‘on’, turn it ‘off’
+      if (val) {
+        bufferGrid[row][col] = 0;
+      } else {
+        let neighbors = getNeighbors(
+          row,
+          col,
+          o.range,
+          o.mooreNeighborhood ? MOORE_NEIGHBORHOOD : VON_NEUMANN_NEIGHBORHOOD
+        );
+
+        if (sumOfArray(neighbors) > 1) {
+          bufferGrid[row][col] = 1;
+        }
+      }
+      
+      
+      // let count = countInArray(neighbors, valPlusOne);
+
+      // if (count >= o.threshold) {
+      //   bufferGrid[row][col] = valPlusOne;
+      // } else {
+      //   bufferGrid[row][col] = val;
+      // }
+    }
+  }
+
+  grid = bufferGrid;
+
+  // Draw
+  for (let row = 0; row < o.rows; row++) {
+    for (let col = 0; col < o.cols; col++) {
+      
+      if (grid[row][col]) {
+        fill('black');  
+
+      } else {
+        fill('white');
+      }
+      rect(col * o.size, row * o.size, o.size, o.size);
+    }
+  }
+}
+
+function mouseClicked() {
+  let row = floor(mouseY / o.size);
+  let col = floor(mouseX / o.size);
+  grid[row][col] = 1;  
+  console.log(row, col);
+}
+
+    </script>
+  </head>
+  <body>
+  </body>
+</html>

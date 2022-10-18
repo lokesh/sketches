@@ -4,6 +4,8 @@ Reminder:
 1. I'll get it wrong the first two times, so move fast, try stuff.
 2. Prioritize readibility. This project will have a long life.
 
+Plan to rewrite in WebGL eventually.
+
 **Big picture**
 - What does it look like when it's all done?
 - What does it feel like?
@@ -34,12 +36,18 @@ Reminder:
 - prevLocation(s)
 - mass
 
+**Other inputs**
+- images
+
 **Saving and browsing presets**
 - A place to browse visuals.
 
 **Transitions**
 - Animating between states?
 - Wipes?
+
+**Post-processing**
+- Stacking effects e.g. grain, glitch. What about stacking all processess, including automata?
 
 **Interface**
 - Keep it visible? Show the magic?
@@ -48,6 +56,11 @@ Reminder:
 - React to music?
 - Make music?
 
+
+## Inspiration
+To compute the next generation of the simulation, apply the following rule to each pixel:
+If the pixel is ‘on’, turn it ‘off’
+If the pixel is ‘off’, take the weighted sum of a kernel and the pixel’s neighborhood (a convolution). If the sum is above a threshold value, then turn the pixel on.
 
 
 ## Dev

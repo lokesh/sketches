@@ -19,23 +19,17 @@
     <script src="/node_modules/dat.gui/build/dat.gui.min.js"></script>
     <script>
 
-/*
-1. range - how far do i look?
-2. threshold - how many (self + 1) states surround me?
-3. states - what is the max integer that a cell can be?
-3. neighborhood - Moore or Von Neumann (cross)?
-*/
 
 // Options
 let o = {
   size: 4,
-  fps: 60,
+  fps: 6,
   rows: 40,
   cols: 40,
   wrap: true,
   
-  range: 3,
-  threshold: 3,
+  range: 2,
+  threshold: 1,
   states: 2,
   mooreNeighborhood: false,
 }
@@ -187,21 +181,31 @@ function draw() {
           o.mooreNeighborhood ? MOORE_NEIGHBORHOOD : VON_NEUMANN_NEIGHBORHOOD
         );
 
-        if (sumOfArray(neighbors) > 1) {
+        if (sumOfArray(neighbors) > o.threshold) {
           bufferGrid[row][col] = 1;
         }
       }
-      
-      
-      // let count = countInArray(neighbors, valPlusOne);
-
-      // if (count >= o.threshold) {
-      //   bufferGrid[row][col] = valPlusOne;
-      // } else {
-      //   bufferGrid[row][col] = val;
-      // }
     }
   }
+
+  // Special square in center that is always on
+  let size = 2;
+  let centerRow = Math.floor(o.rows / 2);
+  let startRow = centerRow - size;
+  let endRow = centerRow + size;
+  let centerCol = Math.floor(o.cols / 2);
+  let startCol = centerCol - size;
+  let endCol = centerCol + size;
+  for (let row = startRow; row <= endRow; row++) {
+    for (let col = startCol; col < endCol; col++) {
+      if (row % 2 === 0) {
+        bufferGrid[row][col] = 1;
+      }
+    }
+  }
+
+
+
 
   grid = bufferGrid;
 
@@ -221,11 +225,31 @@ function draw() {
 }
 
 function mouseClicked() {
-  let row = floor(mouseY / o.size);
-  let col = floor(mouseX / o.size);
+  let CSS_TRANSFORM_SCALE = 2;
+  let row = floor(mouseY / o.size / CSS_TRANSFORM_SCALE);
+  let col = floor(mouseX / o.size / CSS_TRANSFORM_SCALE);
   grid[row][col] = 1;  
-  console.log(row, col);
 }
+
+function keyPressed(key) {
+  if (key.code === 'ArrowUp') {
+    randomizeGrid(grid);
+  } else if (key.code === 'ArrowDown') {
+    // randomizeGrid(grid);
+  }
+}
+
+
+function randomizeGrid(g) {
+  for (let row = 0; row < o.rows; row++) {
+    g[row] = [];
+    for (let col = 0; col < o.cols; col++) {
+      g[row][col] = floor(random(o.states));
+    }
+  }
+  log('randomizeGrid()');
+}
+
 
     </script>
   </head>

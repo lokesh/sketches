@@ -29,8 +29,8 @@
 // Options
 let o = {
   size: 4,
-  fps: 60,
-  rows: 40,
+  fps: 16,
+  rows: 120,
   cols: 40,
   wrap: true,
   
@@ -40,6 +40,26 @@ let o = {
   mooreNeighborhood: false,
 }
 
+const THEMES = [
+  [
+    [0, 0, 0],
+    [120, 120, 120],
+    [255, 255, 255]
+  ],
+  [
+    [40, 50, 60],
+    [250, 250, 180],
+    [0, 255, 100],
+    // [210, 255, 100],  
+  ],
+  [
+    [255, 0, 0],
+    [0, 255, 0],
+    [0, 0, 255],  
+  ]  
+];
+
+const COLORS = THEMES[1];
 
 let grid;
 
@@ -153,7 +173,7 @@ function countInArray(arr, match) {
 
 function draw() {
   frameRate(o.fps);
-  background('#fff');
+  background('#eee');
 
   // Has rows or cols changed?
   if (grid.length !== o.rows || grid[0].length !== o.cols) {
@@ -189,12 +209,10 @@ function draw() {
   // Draw
   for (let row = 0; row < o.rows; row++) {
     for (let col = 0; col < o.cols; col++) {
-      if (grid[row][col]) {
-        let val = grid[row][col];
-        let rgb = val * 50;
-        fill(rgb, rgb, rgb);
-        rect(col * o.size, row * o.size, o.size, o.size);
-      }
+      let val = grid[row][col];
+      let idx = val % COLORS.length
+      fill(COLORS[idx][0], COLORS[idx][1], COLORS[idx][2]);
+      rect(col * o.size, row * o.size, o.size, o.size);
     }
   }
 }

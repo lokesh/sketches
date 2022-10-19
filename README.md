@@ -1,8 +1,12 @@
 ## Thoughts
 
+
+
 Reminder:
 1. I'll get it wrong the first two times, so move fast, try stuff.
 2. Prioritize readibility. This project will have a long life.
+3. Make things modular
+4. Add debugging tools
 
 Plan to rewrite in WebGL eventually.
 
@@ -12,6 +16,7 @@ Plan to rewrite in WebGL eventually.
 - Who is looking at it?
 - What does it sound like?
 - Where is it?
+- Sequencer?
 
 **Theme**
 - Can we denote each effect, transition, etc. with different characterstics: intensity, chaoticness, density?
@@ -26,7 +31,7 @@ Plan to rewrite in WebGL eventually.
 - Are there multiple grids? or just main and buffer?
 
 **Schema**
-- type
+- type (e.g. special seed pixel)
 - color
 - lifetime
 - id
@@ -36,7 +41,8 @@ Plan to rewrite in WebGL eventually.
 - prevLocation(s)
 - mass
 
-**Other inputs**
+**Starting states**
+- algorithmically drawn shapes
 - images
 
 **Saving and browsing presets**
@@ -125,3 +131,8 @@ range, threshold, states, 'hood'
 
 
 **2022-09-30 Sand simulation**
+
+
+
+**2022-10-05 Feedback Crystals**
+https://notes.spacefiller.space/feedback-crystal/

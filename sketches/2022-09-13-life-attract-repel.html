@@ -199,7 +199,7 @@ let forcesList = [];
 let opts = {
   size: 1,
   maxVel: 1,
-  velMult: 0.5,
+  velMult: 0.6,
   canvasWidth: 300,
   canvasHeight: 200,
   bgColor,
@@ -233,7 +233,7 @@ let opts = {
     randomizeForces();
 
     opts.maxVel = Math.random() * 10;
-    opts.velMult = Math.random() * 2 - 1;
+    opts.velMult = Math.random() * 4 - 4;
 
     gui.updateDisplay();
   }
@@ -435,7 +435,7 @@ function resetGUI() {
 
   gui.add(opts, 'size', 1, 100)
   gui.add(opts, 'maxVel', 0, 10)
-  gui.add(opts, 'velMult', -1, 1)
+  gui.add(opts, 'velMult', -5, 5)
   gui.add(opts, 'canvasWidth', 48, 640)
   gui.add(opts, 'canvasHeight', 48, 640)
   gui.add(opts, 'bgColor', opts.bgColor);

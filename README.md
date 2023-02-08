@@ -132,6 +132,8 @@ range, threshold, states, 'hood'
 
 **2022-09-30 Sand simulation**
 
+- https://www.youtube.com/watch?v=VLZjd_Y1gJ8
+- https://maxbittker.github.io/dust/
 
 
 **2022-10-05 Feedback Crystals**

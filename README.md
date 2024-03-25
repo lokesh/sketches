@@ -1,7 +1,5 @@
 ## Thoughts
 
-
-
 Reminder:
 1. I'll get it wrong the first two times, so move fast, try stuff.
 2. Prioritize readibility. This project will have a long life.

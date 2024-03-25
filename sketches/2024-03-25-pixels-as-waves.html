@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1 user-scalable=0">
+    <style>
+    body {padding: 0; margin: 0; overflow: hidden; background: #999;}
+    /* canvas {
+      image-rendering: -moz-crisp-edges;
+      image-rendering: -webkit-crisp-edges;
+      image-rendering: pixelated;
+      image-rendering: crisp-edges;
+      transform-origin: top left;
+      /* transform: scale(2); */
+      /*scale: 2;*/
+    } */
+  </style>
+    <script src="/node_modules/p5/lib/p5.min.js"></script>
+    <script src="/node_modules/dat.gui/build/dat.gui.min.js"></script>
+    <script>
+
+// Options
+let o = {
+  cellSize: 10,
+  fps: 6,
+  rows: 50,
+  cols: 50, 
+  strokeWeight: 2,
+}
+
+
+
+function setup() {
+  createCanvas(windowWidth, windowHeight);
+  resizeCanvas(o.cols * o.cellSize, o.rows * o.cellSize);
+
+  let gui = new dat.GUI();
+  gui.add(o, 'cellSize', 1, 24, 1)
+  gui.add(o, 'fps', 1, 60, 1)
+  gui.add(o, 'rows', 12, 240, 1)
+  gui.add(o, 'cols', 12, 240, 1)
+  gui.add(o, 'strokeWeight', 1, 10, 1)
+
+  // noLoop();
+  frameRate(o.fps);
+
+  // Colors
+  fill('black')
+  noStroke();
+}
+
+
+function draw() {
+  frameRate(o.fps);
+  
+  background(255);
+  fill(255)
+  stroke(0);
+  strokeWeight(o.strokeWeight);
+
+  // Variables to control the wave properties
+  let amplitude = 80; // Height of the wave
+  let frequency = 0.2; // How tight the wave is
+  let phaseShift = frameCount / 10; // To make the wave move
+  
+  // Draw the sine wave
+  beginShape();
+  for (let x = 0; x < width; x++) {
+    let angle = x * frequency + phaseShift; // Calculate the angle
+    let y = height / 2 + sin(angle) * amplitude; // Calculate the y position
+    vertex(x, y); // Create a vertex at (x, y)
+  }
+  endShape();
+  
+  noLoop();
+}
+
+function keyPressed(key) {
+  if (key.code === 'ArrowUp') {
+    randomizeGrid(grid);
+  } else if (key.code === 'ArrowDown') {
+    // randomizeGrid(grid);
+  }
+}
+
+
+
+
+    </script>
+  </head>
+  <body>
+  </body>
+</html>

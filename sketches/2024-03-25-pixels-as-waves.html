@@ -21,58 +21,105 @@
 
 // Options
 let o = {
-  cellSize: 10,
-  fps: 6,
-  rows: 50,
-  cols: 50, 
-  strokeWeight: 2,
+  cellSize: 100,
+  fps: 1,
+  rows: 6,
+  cols: 4, 
+  strokeWeight: 1,
+  states: 10,
 }
+
+let grid;
 
 
 
 function setup() {
   createCanvas(windowWidth, windowHeight);
-  resizeCanvas(o.cols * o.cellSize, o.rows * o.cellSize);
+  // resizeCanvas(o.cols * o.cellSize, o.rows * o.cellSize);
 
   let gui = new dat.GUI();
-  gui.add(o, 'cellSize', 1, 24, 1)
-  gui.add(o, 'fps', 1, 60, 1)
-  gui.add(o, 'rows', 12, 240, 1)
-  gui.add(o, 'cols', 12, 240, 1)
+  gui.add(o, 'cellSize', 1, 200, 1)
+  gui.add(o, 'fps', 0, 60, 1)
+  gui.add(o, 'rows', 1, 40, 1)
+  gui.add(o, 'cols', 1, 40, 1)
   gui.add(o, 'strokeWeight', 1, 10, 1)
 
-  // noLoop();
-  frameRate(o.fps);
-
   // Colors
-  fill('black')
   noStroke();
+
+  // Init data
+  grid = make2dArray(o.rows, o.cols);
+  randomizeGrid(grid);
+  console.log('SETUP');
+  console.log(grid);
 }
 
 
 function draw() {
-  frameRate(o.fps);
-  
+
+  let rando = 0;
+
+  // noLoop();
+
+  // Has rows or cols changed?
+  if (grid.length !== o.rows || grid[0].length !== o.cols) {
+    grid = make2dArray(o.rows, o.cols);
+    randomizeGrid(grid);
+  }
+
+
   background(255);
-  fill(255)
+  noFill();
   stroke(0);
   strokeWeight(o.strokeWeight);
 
-  // Variables to control the wave properties
-  let amplitude = 80; // Height of the wave
-  let frequency = 0.2; // How tight the wave is
-  let phaseShift = frameCount / 10; // To make the wave move
-  
+
+  // Draw
+ for (let row = 0; row < o.rows; row++) {
+    for (let col = 0; col < o.cols; col++) {
+
+      let xOffset = col * o.cellSize + int(random(rando));
+      let yOffset = row * (o.cellSize / 2) + int(random(rando));
+
+      // Variables to control the wave properties
+      let amplitude = (o.cellSize / 2) - (o.strokeWeight / 2) + int(random(rando)); // Height of the wave
+
+      //  Expects the values to be provided in radians (values from 0 to 6.28)
+      let frequency = TWO_PI / o.cellSize; // How tight the wave is
+
+      // playing around
+      // console.log(grid);
+      let val = grid[row][col];
+
+      frequency += val * 0.02;
+      // let chosenColor = colors[int(random(colors.length))];
+      // stroke(chosenColor);
+      // stroke(255, 0 , 0);
+
+      
+      let color = 'green';
+      if (val <= o.states / 3) {
+        color = 'red'
+      } else if (val <= o.states * (2/3)) {
+        color = 'blue';
+      } 
+      drawSineWave(xOffset, yOffset, o.cellSize, o.cellSize, frequency, amplitude, color)
+    }
+  }
+
+}
+
+function drawSineWave(xOffset, yOffset, width, height, frequency, amplitude, color) {
   // Draw the sine wave
   beginShape();
+  stroke(color);
   for (let x = 0; x < width; x++) {
-    let angle = x * frequency + phaseShift; // Calculate the angle
+    let angle = x * frequency; // Calculate the angle
     let y = height / 2 + sin(angle) * amplitude; // Calculate the y position
-    vertex(x, y); // Create a vertex at (x, y)
+    vertex(x + xOffset, y + yOffset); // Create a vertex at (x, y)
   }
   endShape();
-  
-  noLoop();
+
 }
 
 function keyPressed(key) {
@@ -83,6 +130,36 @@ function keyPressed(key) {
   }
 }
 
+
+function make2dArray(rows, cols) {
+  let arr = Array(rows).fill(0).map(x => Array(cols).fill(0));
+  for (let row = 0; row < o.rows; row++) {
+    for (let col = 0; col < o.cols; col++) {
+      arr[row][col] = 0;  
+    }
+  }
+  // return arr; 
+
+return  [
+    [0, 0, 0, 0, 0, 0],
+    [1, 0, 1, 0, 1, 0],
+    [0, 0, 0, 0, 0, 0],
+    [0, 1, 0, 1, 0, 1],
+    [1, 0, 1, 0, 1, 0],
+    [1, 1, 1, 1, 0, 1],
+  ]
+
+}
+
+function randomizeGrid(g) {
+  for (let row = 0; row < o.rows; row++) {
+    g[row] = [];
+    for (let col = 0; col < o.cols; col++) {
+      g[row][col] = floor(random(o.states));
+    }
+  }
+
+}
 
 
 

@@ -14,18 +14,18 @@
 
 
 let capture;
-let detector;
+let classifier;
 let detections = []
 
 
 function preload() {
-  detector = ml5.objectDetector('cocossd', () => {
-    detector.detect(capture, gotDetections)
-  })
+  classifier = ml5.imageClassifier('MobileNet', () => {
+    classifier.classify(capture, gotResult);
+  });
 }
 
 function setup() {
-  frameRate(30);
+  // frameRate(1);
   createCanvas(640, 480)
   
   // Start webcam capture
@@ -34,7 +34,7 @@ function setup() {
   capture.hide();
 
   // Style
-  fill(255);
+  fill(0);
   textFont('Menlo');
   textSize(16);
 }
@@ -48,23 +48,18 @@ function draw() {
   // Draw detections - bounding box and label
   for (let i = 0; i < detections.length; i++) {
     let object = detections[i];
-    stroke(0, 255, 0);
-    strokeWeight(4);
-    noFill();
-    rect(object.x, object.y, object.width, object.height);
-    noStroke();
-    fill(255);
-    text(object.label, object.x + 6, object.y + 16);
+    text(`${i + 1}  ${object.label}`, 24, i * 24 + 32);
   }
 }
 
-function gotDetections(error, results) {
+function gotResult(error, result) {
   if (error) {
     console.error(error);
   }
-  detections = results
-  detector.detect(capture, gotDetections);
+  detections = result;
+  classifier.classify(capture, gotResult);
 }
+
     </script>
   </head>
   <body>

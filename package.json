@@ -4,7 +4,8 @@
   "description": "-   Size as multiples of 320. Default to 640 x 640. -   Run `live-server` to get live reloading.",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "dev": "live-server"
   },
   "repository": {
     "type": "git",

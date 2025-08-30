@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=0">
+    <style> 
+      body {
+        padding: 0; 
+        margin: 0; 
+        overflow: hidden;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        min-height: 100vh;
+        background: #333;
+      }
+    </style>
+    <script src="/node_modules/p5/lib/p5.min.js"></script>
+    <script>
+
+let lastMinute = -1;
+let photoBoxColor;
+
+function setup() {
+  createCanvas(200, 420); // 200 width, 200 + 20 + 200 height
+  frameRate(1); // 1 FPS for ticking animation
+  
+  // Initialize photo box color
+  photoBoxColor = color(random(255), random(255), random(255));
+}
+
+function draw() {
+  // Clear background
+  background(0);
+  
+  // Get current time
+  let now = new Date();
+  let hours = now.getHours() % 12;
+  let minutes = now.getMinutes();
+  let seconds = now.getSeconds();
+  
+  // Check if minute has changed to update photo box color
+  if (minutes !== lastMinute) {
+    photoBoxColor = color(random(255), random(255), random(255));
+    lastMinute = minutes;
+  }
+  
+  // Draw photo display box (top box)
+  fill(photoBoxColor);
+  noStroke();
+  rect(0, 0, 200, 200);
+  
+  // Add a subtle border to the photo box
+  // stroke(255);
+  // strokeWeight(2);
+  noFill();
+  rect(0, 0, 200, 200);
+  
+  // Draw clock (bottom box) - positioned 220px down (200 + 20 gutter)
+  let clockY = 220;
+  let centerX = width / 2;
+  let centerY = clockY + 100; // 220 + 100 = center of clock area
+  let radius = 90;
+  
+  // Draw clock face (black circle)
+  fill(0);
+  stroke(255);
+  strokeWeight(2);
+  circle(centerX, centerY, radius * 2);
+  
+  // Draw hour labels (1-12)
+  textAlign(CENTER, CENTER);
+  textSize(16);
+  fill(255);
+  noStroke();
+  
+  for (let i = 1; i <= 12; i++) {
+    let angle = map(i, 0, 12, 0, TWO_PI) - HALF_PI;
+    let x = centerX + cos(angle) * (radius - 20);
+    let y = centerY + sin(angle) * (radius - 20);
+    text(i, x, y);
+  }
+  
+  // Draw center dot
+  fill(255);
+  noStroke();
+  circle(centerX, centerY, 6);
+  
+  // Draw hour hand
+  let hourAngle = map(hours + minutes / 60, 0, 12, 0, TWO_PI) - HALF_PI;
+  let hourLength = radius * 0.5;
+  let hourX = centerX + cos(hourAngle) * hourLength;
+  let hourY = centerY + sin(hourAngle) * hourLength;
+  
+  stroke(255);
+  strokeWeight(4);
+  line(centerX, centerY, hourX, hourY);
+  
+  // Draw minute hand
+  let minuteAngle = map(minutes, 0, 60, 0, TWO_PI) - HALF_PI;
+  let minuteLength = radius * 0.7;
+  let minuteX = centerX + cos(minuteAngle) * minuteLength;
+  let minuteY = centerY + sin(minuteAngle) * minuteLength;
+  
+  stroke(255);
+  strokeWeight(3);
+  line(centerX, centerY, minuteX, minuteY);
+  
+  // Draw second hand
+  let secondAngle = map(seconds, 0, 60, 0, TWO_PI) - HALF_PI;
+  let secondLength = radius * 0.8;
+  let secondX = centerX + cos(secondAngle) * secondLength;
+  let secondY = centerY + sin(secondAngle) * secondLength;
+  
+  stroke(255);
+  strokeWeight(2);
+  line(centerX, centerY, secondX, secondY);
+}
+
+function windowResized() {
+  // Keep canvas at 200x420
+  resizeCanvas(200, 420);
+}
+    </script>
+  </head>
+  <body>
+  </body>
+</html>
